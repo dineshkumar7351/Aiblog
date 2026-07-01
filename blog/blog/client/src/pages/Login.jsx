@@ -4,12 +4,52 @@
  */
 
 import { useState } from 'react';
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
 import { SignIn } from '@clerk/clerk-react';
 import { Sparkles } from 'lucide-react';
 
 const Login = () => {
   const [showPassword] = useState(false);
+=======
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/dashboard';
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(email, password);
+      toast.success('Welcome back!');
+      navigate(from, { replace: true });
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 
   return (
     <div className="min-h-screen flex bg-mesh-gradient bg-surface-50 dark:bg-surface-950">
@@ -85,9 +125,65 @@ const Login = () => {
             </p>
           </div>
 
+<<<<<<< HEAD
           <div className="space-y-5">
             <SignIn />
           </div>
+=======
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="label">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input pl-12"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input pl-12 pr-12"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </form>
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 
           <p className="mt-8 text-center text-surface-600 dark:text-surface-400">
             Don't have an account?{' '}

@@ -7,12 +7,15 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+<<<<<<< HEAD
     clerkId: {
         type: String,
         unique: true,
         sparse: true, // Allow null values for non-Clerk users
         trim: true
     },
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
     name: {
         type: String,
         required: [true, 'Name is required'],
@@ -30,6 +33,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
+<<<<<<< HEAD
         minlength: [6, 'Password must be at least 6 characters'],
         select: false, // Don't include password in queries by default
         required: function() {
@@ -100,6 +104,11 @@ const userSchema = new mongoose.Schema({
                 deviceTrusted: false
             }
         })
+=======
+        required: [true, 'Password is required'],
+        minlength: [6, 'Password must be at least 6 characters'],
+        select: false // Don't include password in queries by default
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
     }
 }, {
     timestamps: true

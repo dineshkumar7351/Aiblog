@@ -19,7 +19,10 @@ import BlogList from './pages/BlogList';
 import BlogDetail from './pages/BlogDetail';
 import Analytics from './pages/Analytics';
 import DesignStudio from './pages/DesignStudio';
+<<<<<<< HEAD
 import ProfileSettings from './pages/ProfileSettings';
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 
 function App() {
   return (
@@ -72,7 +75,10 @@ function App() {
               <Route path="/blogs" element={<BlogList />} />
               <Route path="/blog/:id" element={<BlogDetail />} />
               <Route path="/analytics" element={<Analytics />} />
+<<<<<<< HEAD
               <Route path="/profile-settings" element={<ProfileSettings />} />
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
             </Route>
 
             {/* Design Studio - Full screen without layout */}

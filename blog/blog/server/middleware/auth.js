@@ -1,13 +1,21 @@
 /**
  * Authentication Middleware
+<<<<<<< HEAD
  * Protects routes by verifying Clerk JWT tokens
+=======
+ * Protects routes by verifying JWT tokens
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
  */
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 /**
+<<<<<<< HEAD
  * Protect routes - Verifies Clerk token and attaches user to request
+=======
+ * Protect routes - Verifies JWT token and attaches user to request
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
  */
 const protect = async (req, res, next) => {
     let token;
@@ -26,6 +34,7 @@ const protect = async (req, res, next) => {
     }
 
     try {
+<<<<<<< HEAD
         // Verify Clerk token using JWT (Clerk tokens are standard JWTs)
         // For development, we'll verify the token structure
         let decoded;
@@ -83,11 +92,31 @@ const protect = async (req, res, next) => {
 
         req.user = user;
         req.clerkId = clerkId;
+=======
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Find user and attach to request
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not found. Please login again.'
+            });
+        }
+
+        req.user = user;
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
         next();
     } catch (error) {
         console.error('Auth Middleware Error:', error.message);
 
+<<<<<<< HEAD
         if (error.message.includes('token') || error.name === 'JsonWebTokenError') {
+=======
+        if (error.name === 'JsonWebTokenError') {
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
             return res.status(401).json({
                 success: false,
                 message: 'Invalid token. Please login again.'

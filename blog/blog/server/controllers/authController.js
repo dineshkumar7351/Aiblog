@@ -7,6 +7,7 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const { validationResult } = require('express-validator');
 
+<<<<<<< HEAD
 const DEFAULT_SETTINGS = {
     notifications: {
         emailNotifications: true,
@@ -59,6 +60,8 @@ const serializeUser = (user) => ({
     updatedAt: user.updatedAt
 });
 
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 /**
  * @desc    Register a new user
  * @route   POST /api/auth/register
@@ -183,6 +186,7 @@ const getMe = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: {
+<<<<<<< HEAD
                 user: serializeUser(user)
             }
         });
@@ -271,6 +275,14 @@ const updateMe = async (req, res, next) => {
             message: 'Profile updated successfully',
             data: {
                 user: serializeUser(user)
+=======
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    createdAt: user.createdAt
+                }
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
             }
         });
     } catch (error) {
@@ -281,6 +293,10 @@ const updateMe = async (req, res, next) => {
 module.exports = {
     register,
     login,
+<<<<<<< HEAD
     getMe,
     updateMe
+=======
+    getMe
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 };

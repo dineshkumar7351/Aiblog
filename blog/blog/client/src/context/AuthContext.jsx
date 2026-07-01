@@ -1,10 +1,21 @@
+<<<<<<< HEAD
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth as useClerkAuth, useUser as useClerkUser, useSession } from '@clerk/clerk-react';
 import { authAPI, setTokenGetter, setClerkUserGetter } from '../services/api';
+=======
+/**
+ * Authentication Context
+ * Manages user authentication state across the app
+ */
+
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../services/api';
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+<<<<<<< HEAD
   // Clerk hooks (require ClerkProvider above this provider)
   const clerkAuth = useClerkAuth();
   const clerkUser = useClerkUser();
@@ -102,16 +113,89 @@ export const AuthProvider = ({ children }) => {
       console.error('Error updating user profile:', err);
       throw err;
     }
+=======
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (token && storedUser) {
+        try {
+          // Verify token is still valid
+          const response = await authAPI.getMe();
+          setUser(response.data.data.user);
+        } catch (error) {
+          // Token invalid, clear storage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+  }, []);
+
+  // Register user
+  const register = async (name, email, password) => {
+    const response = await authAPI.register({ name, email, password });
+    const { user: userData, token } = response.data.data;
+    
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    
+    return response.data;
+  };
+
+  // Login user
+  const login = async (email, password) => {
+    const response = await authAPI.login({ email, password });
+    const { user: userData, token } = response.data.data;
+    
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    
+    return response.data;
+  };
+
+  // Logout user
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
+  // Update user data
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
   };
 
   const value = {
     user,
+<<<<<<< HEAD
     loading: !isLoaded || dbUserLoading,
     isAuthenticated: !!isSignedIn,
     register,
     login,
     logout,
     updateUser,
+=======
+    loading,
+    isAuthenticated: !!user,
+    register,
+    login,
+    logout,
+    updateUser
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
   };
 
   return (

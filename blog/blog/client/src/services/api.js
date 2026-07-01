@@ -1,6 +1,10 @@
 /**
  * API Service
+<<<<<<< HEAD
  * Centralized API calls using Axios with Clerk authentication
+=======
+ * Centralized API calls using Axios
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
  */
 
 import axios from 'axios';
@@ -13,6 +17,7 @@ const api = axios.create({
     }
 });
 
+<<<<<<< HEAD
 // Store reference to token setter
 let getTokenFn = null;
 let getClerkUserFn = null;
@@ -52,6 +57,14 @@ api.interceptors.request.use(
             }
         } catch (error) {
             console.error('Error getting Clerk token or user info:', error);
+=======
+// Request interceptor - adds auth token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
         }
         return config;
     },
@@ -66,6 +79,11 @@ api.interceptors.response.use(
     (error) => {
         // Handle 401 - Unauthorized
         if (error.response?.status === 401) {
+<<<<<<< HEAD
+=======
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
             // Redirect to login if not already there
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
@@ -79,8 +97,12 @@ api.interceptors.response.use(
 export const authAPI = {
     register: (data) => api.post('/auth/register', data),
     login: (data) => api.post('/auth/login', data),
+<<<<<<< HEAD
     getMe: () => api.get('/auth/me'),
     updateMe: (data) => api.put('/auth/me', data)
+=======
+    getMe: () => api.get('/auth/me')
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
 };
 
 // Blog API

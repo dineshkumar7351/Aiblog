@@ -4,13 +4,19 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
+<<<<<<< HEAD
         "start": "vite",
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview"
     },
     "dependencies": {
+<<<<<<< HEAD
         "@clerk/clerk-react": "^5.61.8",
+=======
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
         "axios": "^1.6.2",
         "fabric": "^5.3.0",
         "html2canvas": "^1.4.1",

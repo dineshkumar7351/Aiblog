@@ -96,7 +96,11 @@ const Navbar = ({ onMenuClick }) => {
                   <button
                     onClick={() => {
                       setDropdownOpen(false);
+<<<<<<< HEAD
                       navigate('/profile-settings');
+=======
+                      // Navigate to profile/settings if implemented
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
                   >
@@ -107,7 +111,11 @@ const Navbar = ({ onMenuClick }) => {
                   <button
                     onClick={() => {
                       setDropdownOpen(false);
+<<<<<<< HEAD
                       navigate('/profile-settings?tab=settings');
+=======
+                      // Navigate to settings if implemented
+>>>>>>> 5bf6ab570f0a17d0204b2dda4629df6c3cb3b4c2
                     }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
                   >
