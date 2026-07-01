@@ -1,0 +1,19 @@
+{
+  "name": "ai-blog-workspace",
+  "version": "1.0.0",
+  "description": "Root workspace to run client and server concurrently",
+  "scripts": {
+    "start": "npx --yes concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "install:client": "npm install --prefix blog/blog/client",
+    "install:server": "npm install --prefix blog/blog/server",
+    "install:all": "npm run install:client && npm run install:server",
+    "dev:client": "npm run dev --prefix blog/blog/client",
+    "dev:server": "npm run dev --prefix blog/blog/server",
+    "dev": "npx --yes concurrently \"npm run dev:client\" \"npm run dev:server\""
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.61.8",
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/react": "^6.11.3"
+  }
+}
