@@ -7,6 +7,10 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is missing. Please set your MongoDB Atlas connection string in your environment variables.');
+    }
+
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       // Mongoose 8+ no longer requires these options
     });

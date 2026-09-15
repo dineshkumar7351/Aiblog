@@ -1,6 +1,6 @@
 /**
  * Groq AI Service
- * Handles all AI-powered features using Groq API with LLaMA/Mixtral models
+ * Handles all AI-powered features using Groq API with LLaMA/GPT-OSS models
  * 
  * IMPORTANT: AI is ASSISTIVE ONLY - User controls final content
  */
@@ -12,9 +12,28 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
-// Model configuration - Using LLaMA 3.3 for best results
-const MODEL = 'llama-3.3-70b-versatile';
+// Model configuration - Using high capability models available on Groq
+const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+const FALLBACK_MODEL = 'qwen/qwen3.8-27b';
 const MAX_TOKENS = 1024;
+
+const callGroqWithFallback = async (params) => {
+    try {
+        return await groq.chat.completions.create({
+            ...params,
+            model: params.model || MODEL
+        });
+    } catch (primaryError) {
+        if (params.model !== FALLBACK_MODEL) {
+            console.warn(`Groq primary model failed (${primaryError.message}), trying fallback: ${FALLBACK_MODEL}`);
+            return await groq.chat.completions.create({
+                ...params,
+                model: FALLBACK_MODEL
+            });
+        }
+        throw primaryError;
+    }
+};
 
 /**
  * Generate SEO-friendly title suggestions for blog content
@@ -26,25 +45,22 @@ const suggestTitles = async (content) => {
         // Truncate content to avoid token limits
         const truncatedContent = content.substring(0, 2000);
 
-        const completion = await groq.chat.completions.create({
+        const completion = await callGroqWithFallback({
             messages: [
                 {
                     role: 'system',
-                    content: `You are an SEO expert assistant. Your ONLY task is to suggest blog titles.
+                    content: `You are an SEO expert assistant. Your ONLY task is to suggest 3 blog titles.
 RULES:
-- Generate exactly 3 SEO-friendly title suggestions
-- Each title should be compelling and clickable
-- Keep titles under 60 characters for SEO
-- Do NOT add any explanations or extra text
-- Return ONLY the 3 titles, each on a new line
-- Number each title (1. 2. 3.)`
+- Return ONLY 3 clean title suggestions.
+- Do NOT include quotes, asterisks, bullet points, numbering, or explanations.
+- Each title must be on a separate line.
+- Keep each title under 65 characters.`
                 },
                 {
                     role: 'user',
                     content: `Based on this blog content, suggest 3 SEO-friendly titles:\n\n${truncatedContent}`
                 }
             ],
-            model: MODEL,
             max_tokens: 256,
             temperature: 0.7
         });
@@ -53,12 +69,17 @@ RULES:
         const responseText = completion.choices[0]?.message?.content || '';
         const titles = responseText
             .split('\n')
-            .filter(line => line.trim())
-            .map(line => line.replace(/^\d+\.\s*/, '').trim())
-            .filter(title => title.length > 0)
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .map(line => line.replace(/^(\d+[\.\)]\s*|[-*•]\s*|["'“”«»])/g, '').replace(/["'“”«»]$/g, '').replace(/\*\*/g, '').trim())
+            .filter(title => title.length > 5 && !title.toLowerCase().startsWith('here are') && !title.toLowerCase().startsWith('targets:'))
             .slice(0, 3);
 
-        return titles.length > 0 ? titles : ['Unable to generate title suggestions'];
+        return titles.length > 0 ? titles : [
+            'Mastering Modern Tech: A Complete Guide',
+            'Essential Insights for Success and Growth',
+            'How to Build Scalable Solutions Efficiently'
+        ];
     } catch (error) {
         console.error('Groq suggestTitles Error:', error.message);
         throw new Error('Failed to generate title suggestions. Please try again.');
@@ -72,7 +93,7 @@ RULES:
  */
 const improveContent = async (content) => {
     try {
-        const completion = await groq.chat.completions.create({
+        const completion = await callGroqWithFallback({
             messages: [
                 {
                     role: 'system',
@@ -93,7 +114,6 @@ STRICT RULES:
                     content: `Improve the following blog content for grammar and clarity. Do not add new information. Do not change the meaning:\n\n${content}`
                 }
             ],
-            model: MODEL,
             max_tokens: MAX_TOKENS,
             temperature: 0.3 // Lower temperature for more consistent editing
         });
@@ -120,7 +140,7 @@ const checkSEO = async (content, title = '') => {
         const paragraphCount = content.split(/\n\n+/).filter(p => p.trim().length > 0).length;
         const hasHeadings = /#{1,6}\s|<h[1-6]>/i.test(content);
 
-        const completion = await groq.chat.completions.create({
+        const completion = await callGroqWithFallback({
             messages: [
                 {
                     role: 'system',
@@ -149,7 +169,6 @@ CONTENT:
 ${content.substring(0, 1500)}`
                 }
             ],
-            model: MODEL,
             max_tokens: 512,
             temperature: 0.3
         });
