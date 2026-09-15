@@ -21,11 +21,53 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// CORS Configuration
+const defaultOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'https://aiblog-six-puce.vercel.app'
+];
+
+const envOrigins = process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
+    : [];
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        try {
+            const originUrl = new URL(origin);
+            const isAllowed =
+                allowedOrigins.includes(origin) ||
+                allowedOrigins.includes('*') ||
+                originUrl.hostname.endsWith('.vercel.app') ||
+                originUrl.hostname === 'localhost' ||
+                originUrl.hostname === '127.0.0.1';
+
+            if (isAllowed) {
+                return callback(null, true);
+            }
+        } catch (e) {
+            // Invalid origin URL format
+        }
+
+        console.warn(`[CORS] Origin rejected: ${origin}`);
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Clerk-Email', 'X-Clerk-Name', 'Accept'],
+    optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: true
-}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
