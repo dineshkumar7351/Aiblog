@@ -8,17 +8,18 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI environment variable is missing. Please set your MongoDB Atlas connection string in your environment variables.');
+      console.error('❌ MONGODB_URI environment variable is missing in Render environment!');
+      return;
     }
 
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // Mongoose 8+ no longer requires these options
+      serverSelectionTimeoutMS: 5000,
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    console.error('👉 Hint: If running on Render, ensure MongoDB Atlas Network Access has 0.0.0.0/0 enabled and MONGODB_URI is configured in Render Environment Variables.');
   }
 };
 
