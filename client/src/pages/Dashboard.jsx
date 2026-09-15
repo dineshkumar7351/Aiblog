@@ -22,20 +22,25 @@ import {
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (!authLoading && user) {
+      fetchDashboardData();
+    }
+  }, [authLoading, user]);
 
   const fetchDashboardData = async () => {
+    setLoading(true);
     try {
       const response = await blogAPI.getStats();
-      setStats(response.data.data.stats);
-      setRecentBlogs(response.data.data.recentBlogs);
+      if (response.data?.data) {
+        setStats(response.data.data.stats || {});
+        setRecentBlogs(response.data.data.recentBlogs || []);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');

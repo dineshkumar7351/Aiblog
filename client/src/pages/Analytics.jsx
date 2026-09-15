@@ -17,26 +17,31 @@ import {
   Target,
   Sparkles
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const Analytics = () => {
+  const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAnalytics();
-  }, []);
+    if (!authLoading && user) {
+      fetchAnalytics();
+    }
+  }, [authLoading, user]);
 
   const fetchAnalytics = async () => {
+    setLoading(true);
     try {
       const [statsRes, blogsRes] = await Promise.all([
         blogAPI.getStats(),
         blogAPI.getAll({ limit: 100 })
       ]);
       
-      setStats(statsRes.data.data.stats);
-      setBlogs(blogsRes.data.data.blogs);
+      setStats(statsRes.data?.data?.stats || {});
+      setBlogs(blogsRes.data?.data?.blogs || []);
     } catch (error) {
       toast.error('Failed to load analytics');
     } finally {

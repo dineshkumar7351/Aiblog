@@ -3,6 +3,7 @@
  * Handles CRUD operations for blog posts
  */
 
+const mongoose = require('mongoose');
 const Blog = require('../models/Blog');
 const { validationResult } = require('express-validator');
 const { postToLinkedIn, postToInstagram } = require('../services/socialService');
@@ -329,13 +330,14 @@ const deleteBlog = async (req, res, next) => {
 const getBlogStats = async (req, res, next) => {
     try {
         const userId = req.user._id;
+        const authorObjectId = new mongoose.Types.ObjectId(userId);
 
         const [totalBlogs, publishedBlogs, draftBlogs, avgSeoScore] = await Promise.all([
             Blog.countDocuments({ author: userId }),
             Blog.countDocuments({ author: userId, status: 'published' }),
             Blog.countDocuments({ author: userId, status: 'draft' }),
             Blog.aggregate([
-                { $match: { author: userId, seoScore: { $ne: null } } },
+                { $match: { author: authorObjectId, seoScore: { $ne: null } } },
                 { $group: { _id: null, avgScore: { $avg: '$seoScore' } } }
             ])
         ]);
@@ -344,18 +346,18 @@ const getBlogStats = async (req, res, next) => {
         const recentBlogs = await Blog.find({ author: userId })
             .sort({ createdAt: -1 })
             .limit(5)
-            .select('title status seoScore createdAt');
+            .select('title content status seoScore createdAt');
 
         res.status(200).json({
             success: true,
             data: {
                 stats: {
-                    totalBlogs,
-                    publishedBlogs,
-                    draftBlogs,
-                    avgSeoScore: avgSeoScore[0]?.avgScore ? Math.round(avgSeoScore[0].avgScore) : null
+                    totalBlogs: totalBlogs || 0,
+                    publishedBlogs: publishedBlogs || 0,
+                    draftBlogs: draftBlogs || 0,
+                    avgSeoScore: avgSeoScore && avgSeoScore.length > 0 && avgSeoScore[0]?.avgScore ? Math.round(avgSeoScore[0].avgScore) : null
                 },
-                recentBlogs
+                recentBlogs: recentBlogs || []
             }
         });
     } catch (error) {

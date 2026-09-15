@@ -64,13 +64,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Handle 401 - Unauthorized
         if (error.response?.status === 401) {
-
-            // Redirect to login if not already there
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
-            }
+            console.warn('API 401 Unauthorized:', error.config?.url);
         }
         return Promise.reject(error);
     }

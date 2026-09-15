@@ -60,10 +60,18 @@ export const AuthProvider = ({ children }) => {
 
   // Set up token getter for API requests
   useEffect(() => {
-    if (session) {
+    if (clerkAuth?.getToken) {
+      setTokenGetter(async () => {
+        try {
+          return await clerkAuth.getToken();
+        } catch {
+          return null;
+        }
+      });
+    } else if (session) {
       setTokenGetter(() => session.getToken());
     }
-  }, [session]);
+  }, [clerkAuth, session]);
 
   // Set up Clerk user getter for API requests
   useEffect(() => {

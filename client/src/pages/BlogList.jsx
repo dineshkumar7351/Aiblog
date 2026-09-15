@@ -15,9 +15,11 @@ import {
   FileText,
   Sparkles
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const BlogList = () => {
+  const { user, loading: authLoading } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, published, draft
@@ -29,8 +31,10 @@ const BlogList = () => {
   });
 
   useEffect(() => {
-    fetchBlogs();
-  }, [filter]);
+    if (!authLoading && user) {
+      fetchBlogs();
+    }
+  }, [filter, authLoading, user]);
 
   const fetchBlogs = async () => {
     setLoading(true);
