@@ -4,11 +4,11 @@
   "description": "Root workspace to run client and server concurrently",
   "scripts": {
     "start": "npx --yes concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "install:client": "npm install --prefix blog/blog/client",
-    "install:server": "npm install --prefix blog/blog/server",
+    "install:client": "npm install --prefix client",
+    "install:server": "npm install --prefix server",
     "install:all": "npm run install:client && npm run install:server",
-    "dev:client": "npm run dev --prefix blog/blog/client",
-    "dev:server": "npm run dev --prefix blog/blog/server",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
     "dev": "npx --yes concurrently \"npm run dev:client\" \"npm run dev:server\""
   },
   "dependencies": {
