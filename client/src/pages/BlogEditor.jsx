@@ -529,129 +529,156 @@ const BlogEditor = () => {
       {/* Editor Panel */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Editor Header */}
-        <div className="flex items-center justify-between p-4 border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-4 py-2.5 sm:py-3 border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 gap-3">
+          {/* Left: Back + Title & Status */}
+          <div className="flex items-center gap-3 shrink-0 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="btn-ghost btn-icon"
+              className="p-2 rounded-lg text-surface-500 hover:text-surface-800 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition shrink-0"
+              title="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div>
-              <h1 className="text-lg font-semibold text-surface-900 dark:text-surface-100">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-100 truncate leading-tight">
                 {isEditing ? 'Edit Blog' : 'Write New Blog'}
               </h1>
-              <p className="text-xs text-surface-500">
-                {status === 'published' ? 'Published' : 'Draft'} 
-                {seoScore && ` • SEO Score: ${seoScore}`}
-              </p>
+              <div className="flex items-center gap-2 text-xs text-surface-500 whitespace-nowrap">
+                <span className={`inline-flex items-center gap-1 font-medium ${status === 'published' ? 'text-emerald-600' : 'text-surface-500'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${status === 'published' ? 'bg-emerald-500' : 'bg-surface-400'}`} />
+                  {status === 'published' ? 'Published' : 'Draft'}
+                </span>
+                {seoScore && (
+                  <>
+                    <span>•</span>
+                    <span className="font-semibold text-primary-600 dark:text-primary-400">SEO: {seoScore}/100</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* AI Tools */}
-            <div className="hidden md:flex items-center gap-2 mr-2 pr-4 border-r border-surface-200 dark:border-surface-700">
+          {/* Right: Actions Toolbar */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
+            {/* Desktop AI Tools Group */}
+            <div className="hidden xl:flex items-center gap-1.5 pr-2.5 border-r border-surface-200 dark:border-surface-700">
               <button
                 type="button"
                 onClick={() => setShowVoiceStudio(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm cursor-pointer shrink-0"
-                title="Speak your thoughts and let AI generate a structured blog post"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                title="Speak your thoughts to generate complete article"
               >
                 <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
-                <span>🎙️ Voice Studio</span>
+                <span>Voice Studio</span>
               </button>
               <button
                 onClick={handleSuggestTitle}
                 disabled={aiLoading}
-                className="btn-ghost btn-sm"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
                 title="Get AI title suggestions"
               >
-                <Lightbulb className="w-4 h-4" />
-                <span className="hidden lg:inline">Suggest Title</span>
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span>Title Ideas</span>
               </button>
               <button
                 onClick={handleImproveContent}
                 disabled={aiLoading}
-                className="btn-ghost btn-sm"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
                 title="Improve content with AI"
               >
-                <Wand2 className="w-4 h-4" />
-                <span className="hidden lg:inline">Improve</span>
+                <Wand2 className="w-3.5 h-3.5 text-secondary-500" />
+                <span>Improve</span>
               </button>
               <button
                 onClick={handleSEOCheck}
                 disabled={aiLoading}
-                className="btn-ghost btn-sm"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
                 title="Check SEO score"
               >
-                <Search className="w-4 h-4" />
-                <span className="hidden lg:inline">SEO Check</span>
+                <Search className="w-3.5 h-3.5 text-primary-500" />
+                <span>SEO Check</span>
               </button>
             </div>
 
-            {/* LinkedIn Toggle */}
-            <div className="hidden sm:flex items-center gap-2 mr-2 pr-4 border-r border-surface-200 dark:border-surface-700">
+            {/* Quick Voice Studio trigger for medium screens */}
+            <div className="flex xl:hidden items-center">
               <button
-                onClick={handleLinkedinToggle}
-                disabled={checkingLinkedin}
-                className={`
-                  flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium
-                  transition-all duration-200 cursor-pointer
-                  ${linkedinToggle 
-                    ? linkedinConnected
-                      ? 'bg-[#0A66C2]/10 text-[#0A66C2] border border-[#0A66C2]/30 hover:bg-[#0A66C2]/20' 
-                      : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
-                    : 'bg-surface-100 text-surface-500 border border-surface-200 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:border-surface-700'
-                  }
-                `}
-                title={
-                  checkingLinkedin ? 'Checking LinkedIn status...' :
-                  linkedinToggle 
-                    ? linkedinConnected 
-                      ? 'LinkedIn connected — will post on publish' 
-                      : 'LinkedIn not connected — will prompt login on publish'
-                    : 'Click to enable LinkedIn sharing'
-                }
+                type="button"
+                onClick={() => setShowVoiceStudio(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                title="Voice Studio"
               >
-                {checkingLinkedin ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Linkedin className="w-4 h-4" />
-                )}
-                <span className="hidden lg:inline">
-                  {checkingLinkedin ? 'Checking...' :
-                   linkedinToggle 
-                    ? linkedinConnected ? 'LinkedIn ✓' : 'LinkedIn (login on publish)'
-                    : 'LinkedIn Off'}
-                </span>
-                {!checkingLinkedin && linkedinToggle && (
-                  linkedinConnected 
-                    ? <CheckCircle2 className="w-3.5 h-3.5" />
-                    : <AlertCircle className="w-3.5 h-3.5" />
-                )}
+                <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
+                <span className="hidden sm:inline">Voice Studio</span>
               </button>
             </div>
 
-            {/* Save/Publish Buttons */}
+            {/* LinkedIn Toggle Pill */}
+            <button
+              onClick={handleLinkedinToggle}
+              disabled={checkingLinkedin}
+              className={`
+                inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap
+                transition-all duration-200 cursor-pointer h-8 shrink-0
+                ${linkedinToggle 
+                  ? linkedinConnected
+                    ? 'bg-[#0A66C2]/10 text-[#0A66C2] border border-[#0A66C2]/30 hover:bg-[#0A66C2]/20' 
+                    : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+                  : 'bg-surface-100 text-surface-500 border border-surface-200 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:border-surface-700'
+                }
+              `}
+              title={
+                checkingLinkedin ? 'Checking LinkedIn status...' :
+                linkedinToggle 
+                  ? linkedinConnected 
+                    ? 'LinkedIn connected — will post on publish' 
+                    : 'LinkedIn not connected — will prompt login on publish'
+                  : 'Click to enable LinkedIn sharing'
+              }
+            >
+              {checkingLinkedin ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Linkedin className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {checkingLinkedin ? 'Checking...' :
+                 linkedinToggle 
+                  ? linkedinConnected ? 'LinkedIn ✓' : 'LinkedIn'
+                  : 'LinkedIn Off'}
+              </span>
+              {!checkingLinkedin && linkedinToggle && (
+                linkedinConnected 
+                  ? <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  : <AlertCircle className="w-3 h-3 text-amber-600" />
+              )}
+            </button>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-surface-200 dark:bg-surface-700 hidden sm:block shrink-0 mx-0.5" />
+
+            {/* Save Draft */}
             <button
               onClick={() => handleSave('draft')}
               disabled={saving}
-              className="btn-outline btn-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Save Draft</span>
             </button>
+
+            {/* Publish */}
             <button
               onClick={() => handleSave('published')}
               disabled={saving}
-              className="btn-primary btn-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-md shadow-primary-500/20 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
             >
               {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">
+              <span>
                 {saving ? 'Publishing...' : linkedinToggle ? 'Publish + LinkedIn' : 'Publish'}
               </span>
             </button>
@@ -659,13 +686,13 @@ const BlogEditor = () => {
             {/* Toggle AI Panel */}
             <button
               onClick={() => setShowAIPanel(!showAIPanel)}
-              className="btn-ghost btn-icon lg:hidden"
+              className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-800 transition shrink-0 lg:hidden cursor-pointer h-8 w-8 flex items-center justify-center"
               title="Toggle AI Panel"
             >
               {showAIPanel ? (
-                <PanelRightClose className="w-5 h-5" />
+                <PanelRightClose className="w-4 h-4" />
               ) : (
-                <PanelRightOpen className="w-5 h-5" />
+                <PanelRightOpen className="w-4 h-4" />
               )}
             </button>
           </div>
