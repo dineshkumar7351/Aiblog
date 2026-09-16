@@ -14,7 +14,7 @@ export const ThemeProvider = ({ children }) => {
     if (stored !== null) {
       return stored === 'true';
     }
-    return true; // Default to dark mode for premium neon glow aesthetics
+    return false; // Default to clean white/light theme
   });
 
   useEffect(() => {
