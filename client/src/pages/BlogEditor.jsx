@@ -114,42 +114,43 @@ const BlogEditor = () => {
       };
 
       recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        console.warn('Speech recognition status/error:', event.error);
         if (event.error === 'no-speech') {
-          // Ignore transient no-speech
-        } else if (event.error === 'not-allowed') {
-          toast.error('Microphone access denied. Please click the camera/mic icon in your browser address bar to allow access.');
+          // Normal pause in speaking - do not abort or stop listening!
+          return;
+        }
+        if (event.error === 'not-allowed') {
+          toast.error('Microphone access denied. Please click the camera/mic icon in your address bar to allow microphone access.');
           isListeningRef.current = false;
           setIsListening(false);
           setListeningTarget(null);
           finalTranscriptRef.current = '';
-        } else if (event.error === 'network') {
-          toast.error('Network error: Speech recognition requires an active internet connection.');
-          isListeningRef.current = false;
-          setIsListening(false);
-          setListeningTarget(null);
-          finalTranscriptRef.current = '';
-        } else if (event.error !== 'aborted') {
-          toast.error(`Speech recognition error: ${event.error}.`);
-          isListeningRef.current = false;
-          setIsListening(false);
-          setListeningTarget(null);
-          finalTranscriptRef.current = '';
+          return;
+        }
+        if (event.error === 'network') {
+          toast.error('Speech recognition network timeout. Reconnecting...');
+          return;
+        }
+        if (event.error !== 'aborted') {
+          console.error(`Speech recognition error: ${event.error}`);
         }
       };
 
       recognition.onend = () => {
+        // If user is still in listening mode, smoothly restart recognition after short delay
         if (isListeningRef.current) {
           baselineTextRef.current = target === 'title' ? titleRef.current : contentRef.current;
           finalTranscriptRef.current = '';
-          try {
-            recognition.start();
-          } catch (e) {
-            console.error("Failed to restart speech recognition:", e);
-            setIsListening(false);
-            setListeningTarget(null);
-            finalTranscriptRef.current = '';
-          }
+          setTimeout(() => {
+            if (isListeningRef.current) {
+              try {
+                recognition.start();
+              } catch (e) {
+                // If already active or starting, ignore error
+                console.log('Recognition restart status:', e.message);
+              }
+            }
+          }, 150);
         } else {
           setIsListening(false);
           setListeningTarget(null);
@@ -789,34 +790,46 @@ const BlogEditor = () => {
 
             {/* Content Textarea */}
             <div>
-              <label className="label flex items-center gap-2">
-                Content
-                <span className="text-xs text-surface-400">
-                  ({content.split(/\s+/).filter(w => w.length > 0).length} words)
-                </span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="label flex items-center gap-2 mb-0">
+                  <span>Content</span>
+                  <span className="text-xs text-surface-400">
+                    ({content.split(/\s+/).filter(w => w.length > 0).length} words)
+                  </span>
+                </label>
+
+                {isListening && listeningTarget === 'content' && (
+                  <span className="flex items-center gap-1.5 text-xs text-rose-500 font-semibold animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>Dictating Live... Speak now</span>
+                  </span>
+                )}
+              </div>
+
               <div className="relative">
                 <textarea
                   ref={contentTextareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="textarea min-h-[400px] font-mono text-sm w-full pb-14"
-                  placeholder="Start writing your blog content here...
+                  className={`textarea min-h-[400px] font-mono text-sm w-full pb-14 transition-all duration-200 ${
+                    isListening && listeningTarget === 'content'
+                      ? 'ring-2 ring-rose-500/40 border-rose-500 shadow-lg shadow-rose-500/5'
+                      : ''
+                  }`}
+                  placeholder="Start writing or speaking your blog content here...
 
-You can write in plain text or use markdown formatting.
+You can write in plain text, use markdown, or click the mic to speak!
 
-Tips:
-• Use the AI buttons above to get title suggestions
-• Click 'Improve' to enhance your writing
-• Run 'SEO Check' to optimize for search engines
-
-Remember: AI assists, but you control the final content!"
+Spoken Shortcuts:
+• Say 'period' or 'full stop' for .
+• Say 'comma' for ,
+• Say 'new line' or 'new paragraph' to start new sections"
                 />
-                <div className="absolute right-3 bottom-3 flex items-center gap-2 bg-white/90 dark:bg-surface-900/90 backdrop-blur border border-surface-200 dark:border-surface-800 shadow-sm rounded-lg px-2.5 py-1.5">
+                <div className="absolute right-3 bottom-3 flex items-center gap-2 bg-white/95 dark:bg-surface-900/95 backdrop-blur border border-surface-200 dark:border-surface-800 shadow-md rounded-lg px-2.5 py-1.5">
                   {isListening && listeningTarget === 'content' && (
                     <span className="flex items-center gap-1.5 text-xs text-rose-500 font-semibold animate-pulse mr-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                      Listening...
+                      Recording
                     </span>
                   )}
                   <select
@@ -834,12 +847,12 @@ Remember: AI assists, but you control the final content!"
                     type="button"
                     onClick={() => toggleListening('content')}
                     disabled={isListening && listeningTarget !== 'content'}
-                    className={`p-1.5 rounded-md transition-all duration-200 ${
+                    className={`p-1.5 rounded-md transition-all duration-200 cursor-pointer ${
                       isListening && listeningTarget === 'content'
-                        ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/20'
+                        ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/20 animate-pulse'
                         : 'hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-400 hover:text-surface-600 dark:text-surface-300'
                     }`}
-                    title={isListening && listeningTarget === 'content' ? 'Stop Listening' : 'Dictate Content'}
+                    title={isListening && listeningTarget === 'content' ? 'Stop Listening' : 'Click to Speak into Content'}
                   >
                     {isListening && listeningTarget === 'content' ? (
                       <MicOff className="w-4 h-4" />
