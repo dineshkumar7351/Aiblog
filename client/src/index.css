@@ -269,4 +269,14 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Hide Clerk "Last used" pill/badge */
+  .cl-socialButtonsBlockButtonBadge,
+  .cl-badge,
+  .cl-tag,
+  [data-localization-key*="lastUsed"],
+  .cl-socialButtonsBlockButton__lastUsed,
+  .cl-socialButtonsBlockButtonBadge__lastUsed {
+    display: none !important;
+  }
 }

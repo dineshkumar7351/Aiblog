@@ -26,6 +26,8 @@ const clerkAppearance = {
     headerTitle: 'text-slate-900 font-bold text-2xl',
     headerSubtitle: 'text-slate-600',
     socialButtonsBlockButton: 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-medium rounded-xl',
+    socialButtonsBlockButtonBadge: 'hidden',
+    badge: 'hidden',
     formButtonPrimary: 'bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white shadow-md font-semibold rounded-xl py-3',
     formFieldLabel: 'text-slate-700 font-medium',
     formFieldInput: 'bg-white border border-slate-300 text-slate-900 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20',
