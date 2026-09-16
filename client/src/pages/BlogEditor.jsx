@@ -58,13 +58,15 @@ const BlogEditor = () => {
   // Speech Recognition state
   const [isListening, setIsListening] = useState(false);
   const [listeningTarget, setListeningTarget] = useState(null); // 'title' or 'content'
-  const [speechLang, setSpeechLang] = useState('en-IN'); // 'en-IN', 'en-US' or 'ta-IN'
+  const [speechLang, setSpeechLang] = useState('en-IN'); // 'en-IN', 'en-US', 'ta-IN', 'hi-IN'
   const [recognitionInstance, setRecognitionInstance] = useState(null);
   
   const baselineTextRef = useRef('');
+  const finalTranscriptRef = useRef('');
   const isListeningRef = useRef(false);
   const titleRef = useRef(title);
   const contentRef = useRef(content);
+  const contentTextareaRef = useRef(null);
 
   // Sync state to refs to prevent closure issues in speech callbacks
   useEffect(() => {
@@ -86,10 +88,13 @@ const BlogEditor = () => {
     if (isListening) {
       isListeningRef.current = false;
       if (recognitionInstance) {
-        recognitionInstance.stop();
+        try {
+          recognitionInstance.stop();
+        } catch {}
       }
       setIsListening(false);
       setListeningTarget(null);
+      finalTranscriptRef.current = '';
     } else {
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
@@ -97,54 +102,58 @@ const BlogEditor = () => {
       recognition.lang = speechLang;
 
       // Set the initial baseline text right before starting recognition
-      baselineTextRef.current = target === 'title' ? title : content;
+      baselineTextRef.current = target === 'title' ? titleRef.current : contentRef.current;
+      finalTranscriptRef.current = '';
       isListeningRef.current = true;
 
       recognition.onstart = () => {
         setIsListening(true);
         setListeningTarget(target);
-        toast.success(`Listening in ${speechLang === 'ta-IN' ? 'Tamil' : 'English'}... Speak now!`, { icon: '🎙️' });
+        const langName = speechLang === 'ta-IN' ? 'Tamil' : speechLang === 'hi-IN' ? 'Hindi' : 'English';
+        toast.success(`Microphone active in ${langName} - speak now!`, { icon: '🎙️' });
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
-          // If no speech is detected, some browsers fire an error.
-          // We can restart or just let it stop. We'll show a small warning.
+          // Ignore transient no-speech
         } else if (event.error === 'not-allowed') {
-          toast.error('Microphone access denied. Please click the camera/mic icon in your browser address bar to allow microphone access.');
+          toast.error('Microphone access denied. Please click the camera/mic icon in your browser address bar to allow access.');
           isListeningRef.current = false;
           setIsListening(false);
           setListeningTarget(null);
-        } else if (event.error === 'aborted') {
-          // Normal stop, do nothing
+          finalTranscriptRef.current = '';
         } else if (event.error === 'network') {
           toast.error('Network error: Speech recognition requires an active internet connection.');
           isListeningRef.current = false;
           setIsListening(false);
           setListeningTarget(null);
-        } else {
-          toast.error(`Speech recognition error: ${event.error}. Please ensure your microphone is connected.`);
+          finalTranscriptRef.current = '';
+        } else if (event.error !== 'aborted') {
+          toast.error(`Speech recognition error: ${event.error}.`);
           isListeningRef.current = false;
           setIsListening(false);
           setListeningTarget(null);
+          finalTranscriptRef.current = '';
         }
       };
 
       recognition.onend = () => {
-        // If the user did NOT manually stop it, restart it automatically!
         if (isListeningRef.current) {
           baselineTextRef.current = target === 'title' ? titleRef.current : contentRef.current;
+          finalTranscriptRef.current = '';
           try {
             recognition.start();
           } catch (e) {
             console.error("Failed to restart speech recognition:", e);
             setIsListening(false);
             setListeningTarget(null);
+            finalTranscriptRef.current = '';
           }
         } else {
           setIsListening(false);
           setListeningTarget(null);
+          finalTranscriptRef.current = '';
         }
       };
 
@@ -162,17 +171,35 @@ const BlogEditor = () => {
 
       recognition.onresult = (event) => {
         try {
-          // Map over all results from the beginning of this speech session
-          const rawTranscript = Array.from(event.results)
-            .map(result => result[0]?.transcript || '')
-            .join(' ');
+          let interimText = '';
+          let newFinal = '';
 
-          const formatted = formatPunctuation(rawTranscript);
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const result = event.results[i];
+            const text = result[0]?.transcript || '';
+            if (result.isFinal) {
+              newFinal += text + ' ';
+            } else {
+              interimText += text;
+            }
+          }
+
+          if (newFinal) {
+            finalTranscriptRef.current += formatPunctuation(newFinal);
+          }
+
+          const currentSpoken = (finalTranscriptRef.current + interimText).trim();
+          const base = baselineTextRef.current || '';
+          const separator = base && currentSpoken && !base.endsWith('\n') && !base.endsWith(' ') ? ' ' : '';
+          const fullResult = base + separator + currentSpoken;
 
           if (target === 'title') {
-            setTitle(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + formatted.trim());
+            setTitle(fullResult);
           } else if (target === 'content') {
-            setContent(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + formatted.trim());
+            setContent(fullResult);
+            if (contentTextareaRef.current) {
+              contentTextareaRef.current.scrollTop = contentTextareaRef.current.scrollHeight;
+            }
           }
         } catch (err) {
           console.error("Error transcribing result:", err);
@@ -736,7 +763,8 @@ const BlogEditor = () => {
                   >
                     <option value="en-IN">EN (IN)</option>
                     <option value="en-US">EN (US)</option>
-                    <option value="ta-IN">TA</option>
+                    <option value="ta-IN">TA (தமிழ்)</option>
+                    <option value="hi-IN">HI (हिन्दी)</option>
                   </select>
                   <button
                     type="button"
@@ -769,6 +797,7 @@ const BlogEditor = () => {
               </label>
               <div className="relative">
                 <textarea
+                  ref={contentTextareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="textarea min-h-[400px] font-mono text-sm w-full pb-14"
@@ -798,7 +827,8 @@ Remember: AI assists, but you control the final content!"
                   >
                     <option value="en-IN">EN (IN)</option>
                     <option value="en-US">EN (US)</option>
-                    <option value="ta-IN">TA</option>
+                    <option value="ta-IN">TA (தமிழ்)</option>
+                    <option value="hi-IN">HI (हिन्दी)</option>
                   </select>
                   <button
                     type="button"
