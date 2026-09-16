@@ -24,7 +24,8 @@ const AIPanel = ({
   onAcceptSuggestion,
   onRejectSuggestion,
   onAcceptTitle,
-  onAcceptContent
+  onAcceptContent,
+  onOpenVoiceStudio
 }) => {
   const [expandedSection, setExpandedSection] = useState('suggestions');
 
@@ -46,14 +47,26 @@ const AIPanel = ({
     <aside className="w-80 bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 h-full overflow-y-auto">
       {/* Header */}
       <div className="sticky top-0 bg-white dark:bg-surface-900 p-4 border-b border-surface-200 dark:border-surface-800 z-10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary-500 to-primary-500 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary-500 to-primary-500 flex items-center justify-center shadow-sm">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-surface-900 dark:text-surface-100">AI Assistant</h2>
+              <p className="text-xs text-surface-500">Writing & SEO Copilot</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-semibold text-surface-900 dark:text-surface-100">AI Assistant</h2>
-            <p className="text-xs text-surface-500">Here to help, you decide</p>
-          </div>
+
+          {onOpenVoiceStudio && (
+            <button
+              onClick={onOpenVoiceStudio}
+              className="p-1.5 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition cursor-pointer"
+              title="Launch Voice Studio"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -99,14 +112,14 @@ const AIPanel = ({
                     onClick={() => onAcceptTitle && onAcceptTitle(suggestion.content)}
                     className="flex-1 btn-sm btn-success flex items-center justify-center gap-1"
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3 h-3" />
                     Accept
                   </button>
                   <button
                     onClick={() => onRejectSuggestion && onRejectSuggestion(index)}
-                    className="btn-sm btn-ghost flex items-center justify-center"
+                    className="btn-sm btn-ghost p-1.5"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -115,85 +128,51 @@ const AIPanel = ({
         </div>
       )}
 
-      {/* Content Improvement */}
+      {/* Improved Content Suggestion */}
       {suggestions.length > 0 && suggestions[0]?.type === 'content' && (
         <div className="p-4 border-b border-surface-200 dark:border-surface-800">
           <div className="flex items-center gap-2 mb-3">
             <Wand2 className="w-4 h-4 text-secondary-500" />
-            <h3 className="text-sm font-medium text-surface-900 dark:text-surface-100">Improved Content</h3>
+            <h3 className="text-sm font-medium text-surface-900 dark:text-surface-100">Improved Version</h3>
           </div>
-          {suggestions.filter(s => s.type === 'content').map((suggestion, index) => (
-            <div 
-              key={index}
-              className="p-4 rounded-xl bg-gradient-to-br from-secondary-50 to-primary-50 dark:from-secondary-900/20 dark:to-primary-900/20 border border-secondary-200 dark:border-secondary-800 animate-slide-up"
-            >
-              <div className="flex items-start gap-2 mb-3 text-xs text-secondary-600 dark:text-secondary-400">
-                <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span>AI has preserved your meaning. Review before accepting.</span>
-              </div>
-              <div className="max-h-60 overflow-y-auto mb-4 p-3 bg-white dark:bg-surface-900 rounded-lg text-sm text-surface-700 dark:text-surface-300">
-                {suggestion.content}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onAcceptContent && onAcceptContent(suggestion.content)}
-                  className="flex-1 btn-sm btn-success flex items-center justify-center gap-1"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  Accept Changes
-                </button>
-                <button
-                  onClick={() => onRejectSuggestion && onRejectSuggestion(index)}
-                  className="btn-sm btn-ghost flex items-center justify-center gap-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Reject
-                </button>
-              </div>
+          <div className="p-3 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 animate-slide-up">
+            <div className="max-h-60 overflow-y-auto mb-3">
+              <p className="text-xs font-mono text-surface-800 dark:text-surface-200 whitespace-pre-wrap">
+                {suggestions[0].content}
+              </p>
             </div>
-          ))}
+            <div className="flex gap-2">
+              <button
+                onClick={() => onAcceptContent && onAcceptContent(suggestions[0].content)}
+                className="flex-1 btn-sm btn-success flex items-center justify-center gap-1"
+              >
+                <Check className="w-3 h-3" />
+                Apply Improvement
+              </button>
+              <button
+                onClick={() => onRejectSuggestion && onRejectSuggestion(0)}
+                className="btn-sm btn-ghost p-1.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       {/* SEO Analysis */}
       {seoAnalysis && (
         <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Search className="w-4 h-4 text-primary-500" />
-            <h3 className="text-sm font-medium text-surface-900 dark:text-surface-100">SEO Analysis</h3>
-          </div>
-
-          {/* Score Circle */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative">
-              <svg className="w-32 h-32 transform -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  className="text-surface-200 dark:text-surface-700"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  strokeDasharray={`${(seoAnalysis.score / 100) * 352} 352`}
-                  strokeLinecap="round"
-                  className={getScoreColor(seoAnalysis.score)}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-3xl font-bold ${getScoreColor(seoAnalysis.score)}`}>
-                  {seoAnalysis.score}
-                </span>
-                <span className="text-xs text-surface-500">{getScoreLabel(seoAnalysis.score)}</span>
-              </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-primary-500" />
+              <h3 className="text-sm font-medium text-surface-900 dark:text-surface-100">SEO Analysis</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-2xl font-bold ${getScoreColor(seoAnalysis.score)}`}>
+                {seoAnalysis.score}
+              </span>
+              <span className="text-xs text-surface-400">/100</span>
             </div>
           </div>
 
@@ -257,18 +236,39 @@ const AIPanel = ({
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty State / Feature Discovery */}
       {!isLoading && suggestions.length === 0 && !seoAnalysis && (
-        <div className="p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-surface-400" />
+        <div className="p-5 space-y-4">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-primary-500/10 via-secondary-500/10 to-transparent border border-primary-500/20 text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-tr from-primary-600 to-secondary-500 flex items-center justify-center text-white shadow-md shadow-primary-500/20">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-surface-900 dark:text-surface-100">
+                AI Voice & Writing Assistant
+              </h3>
+              <p className="text-xs text-surface-500 mt-1">
+                Speak your thoughts to generate a complete article, or request title ideas & grammar fixes.
+              </p>
+            </div>
+
+            {onOpenVoiceStudio && (
+              <button
+                type="button"
+                onClick={onOpenVoiceStudio}
+                className="w-full btn-primary btn-sm gap-2 shadow-sm"
+              >
+                <span>🎙️ Launch Voice Studio</span>
+              </button>
+            )}
           </div>
-          <h3 className="text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
-            AI Assistant Ready
-          </h3>
-          <p className="text-xs text-surface-500">
-            Use the buttons in the editor to get AI suggestions for your content.
-          </p>
+
+          <div className="text-xs text-surface-400 dark:text-surface-500 space-y-2 px-1">
+            <p className="font-semibold text-surface-600 dark:text-surface-300">Quick AI Shortcuts:</p>
+            <p>• Click <strong>Suggest Title</strong> to generate 3 SEO headlines.</p>
+            <p>• Click <strong>Improve</strong> to polish writing and tone.</p>
+            <p>• Click <strong>SEO Check</strong> for score and keyword tips.</p>
+          </div>
         </div>
       )}
     </aside>

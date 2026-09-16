@@ -108,7 +108,8 @@ export const linkedinAPI = {
 export const aiAPI = {
     suggestTitle: (content) => api.post('/ai/suggest-title', { content }),
     improveContent: (content) => api.post('/ai/improve-content', { content }),
-    seoCheck: (content, title) => api.post('/ai/seo-check', { content, title })
+    seoCheck: (content, title) => api.post('/ai/seo-check', { content, title }),
+    voiceToBlog: (data) => api.post('/ai/voice-to-blog', data)
 };
 
 export default api;

@@ -9,7 +9,8 @@ const { body } = require('express-validator');
 const {
     getSuggestedTitles,
     getImprovedContent,
-    getSEOAnalysis
+    getSEOAnalysis,
+    generateBlogFromVoice
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -23,9 +24,16 @@ const contentValidation = [
         .notEmpty().withMessage('Content is required for AI analysis')
 ];
 
+const voiceValidation = [
+    body('transcript')
+        .trim()
+        .notEmpty().withMessage('Voice transcript is required for blog generation')
+];
+
 // Routes
 router.post('/suggest-title', contentValidation, getSuggestedTitles);
 router.post('/improve-content', contentValidation, getImprovedContent);
 router.post('/seo-check', contentValidation, getSEOAnalysis);
+router.post('/voice-to-blog', voiceValidation, generateBlogFromVoice);
 
 module.exports = router;

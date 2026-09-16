@@ -245,8 +245,85 @@ const calculateBasicSEOScore = (wordCount, paragraphCount, hasHeadings, title) =
     return Math.min(100, Math.max(0, score));
 };
 
+/**
+ * Generate a complete, formatted blog post from spoken voice transcript
+ * @param {string} transcript - The raw speech-to-text transcript
+ * @param {Object} options - Tone, language, length options
+ * @returns {Promise<Object>} { title, content, tags, summary }
+ */
+const generateBlogFromVoice = async (transcript, options = {}) => {
+    try {
+        const { tone = 'engaging', language = 'English', length = 'medium' } = options;
+
+        const completion = await callGroqWithFallback({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an elite AI ghostwriter and content creator.
+Your job is to take a raw, unstructured speech-to-text voice transcript spoken by a human and transform it into a publication-ready, beautifully formatted Markdown blog post.
+
+REQUIREMENTS:
+1. Extract the core ideas, arguments, and insights from the voice recording.
+2. Clean up verbal filler words ("um", "uh", "you know", "like", repetition, false starts).
+3. Structure the post logically:
+   - Catchy, SEO-optimized title (H1)
+   - Engaging introduction hook
+   - Multiple sections with markdown headings (##, ###)
+   - Key insights, bullet points, callout takeaways, or code blocks where applicable
+   - Smooth conclusion and discussion question for readers
+4. Tone: ${tone}
+5. Language: ${language}
+6. Length: ${length === 'short' ? '300-500 words' : length === 'detailed' ? '800-1200 words' : '500-800 words'}
+
+OUTPUT FORMAT: Return ONLY valid JSON without markdown code blocks around the JSON itself.
+JSON Schema:
+{
+  "title": "<Catchy SEO Title Under 65 chars>",
+  "content": "<Full Markdown Formatted Article Body>",
+  "tags": ["tag1", "tag2", "tag3", "tag4"],
+  "summary": "<Compelling 1-2 sentence meta summary>"
+}`
+                },
+                {
+                    role: 'user',
+                    content: `Here is the spoken voice transcript from the author:\n\n"""\n${transcript}\n"""\n\nGenerate the complete blog post JSON:`
+                }
+            ],
+            max_tokens: 2048,
+            temperature: 0.6
+        });
+
+        const responseText = completion.choices[0]?.message?.content || '';
+
+        try {
+            const cleanJson = responseText.replace(/```json\n?|\n?```/g, '').trim();
+            const parsed = JSON.parse(cleanJson);
+            return {
+                title: parsed.title || 'Insights from Voice Recording',
+                content: parsed.content || transcript,
+                tags: Array.isArray(parsed.tags) ? parsed.tags : ['AI', 'Tech', 'Article'],
+                summary: parsed.summary || ''
+            };
+        } catch (parseErr) {
+            console.warn('Voice-to-blog JSON parsing failed, formatting raw content');
+            const lines = responseText.split('\n').map(l => l.trim()).filter(Boolean);
+            const firstLine = lines[0]?.replace(/^#*\s*/, '') || 'Insights from Voice Notes';
+            return {
+                title: firstLine.substring(0, 65),
+                content: responseText,
+                tags: ['Voice-Note', 'AI-Generated', 'Blog'],
+                summary: lines[1] || ''
+            };
+        }
+    } catch (error) {
+        console.error('Groq generateBlogFromVoice Error:', error.message);
+        throw new Error('Failed to convert voice recording to blog post. Please try again.');
+    }
+};
+
 module.exports = {
     suggestTitles,
     improveContent,
-    checkSEO
+    checkSEO,
+    generateBlogFromVoice
 };

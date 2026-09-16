@@ -133,8 +133,45 @@ const getSEOAnalysis = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Generate full blog post from voice transcript
+ * @route   POST /api/ai/voice-to-blog
+ * @access  Private
+ */
+const generateBlogFromVoiceController = async (req, res, next) => {
+    try {
+        const { transcript, tone, language, length } = req.body;
+
+        if (!transcript || transcript.trim().length < 15) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please speak or provide at least a few words (15+ characters) for AI generation.'
+            });
+        }
+
+        const blogData = await generateBlogFromVoice(transcript, {
+            tone,
+            language,
+            length
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Blog generated successfully from your voice recording!',
+            data: blogData
+        });
+    } catch (error) {
+        console.error('AI Voice to Blog Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to generate blog from voice'
+        });
+    }
+};
+
 module.exports = {
     getSuggestedTitles,
     getImprovedContent,
-    getSEOAnalysis
+    getSEOAnalysis,
+    generateBlogFromVoice: generateBlogFromVoiceController
 };

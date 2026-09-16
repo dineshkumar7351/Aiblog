@@ -7,23 +7,24 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { blogAPI, aiAPI, linkedinAPI } from '../services/api';
 import AIPanel from '../components/AIPanel';
+import VoiceStudioModal from '../components/VoiceStudioModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   Lightbulb, 
   Wand2, 
   Search, 
   Save, 
-  Send,
-  ArrowLeft,
-  Sparkles,
-  PanelRightOpen,
-  PanelRightClose,
-  Linkedin,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Mic,
-  MicOff
+  Send, 
+  ArrowLeft, 
+  Sparkles, 
+  PanelRightOpen, 
+  PanelRightClose, 
+  Linkedin, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2, 
+  Mic, 
+  MicOff 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -48,6 +49,7 @@ const BlogEditor = () => {
 
   // AI Panel state
   const [showAIPanel, setShowAIPanel] = useState(true);
+  const [showVoiceStudio, setShowVoiceStudio] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiLoadingType, setAiLoadingType] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -146,17 +148,31 @@ const BlogEditor = () => {
         }
       };
 
+      const formatPunctuation = (text) => {
+        return text
+          .replace(/\b(full stop|period|dot)\b/gi, '.')
+          .replace(/\bcomma\b/gi, ',')
+          .replace(/\b(question mark)\b/gi, '?')
+          .replace(/\b(exclamation mark|exclamation point)\b/gi, '!')
+          .replace(/\b(new line)\b/gi, '\n')
+          .replace(/\b(new paragraph)\b/gi, '\n\n')
+          .replace(/\b(colon)\b/gi, ':')
+          .replace(/\b(semicolon)\b/gi, ';');
+      };
+
       recognition.onresult = (event) => {
         try {
           // Map over all results from the beginning of this speech session
-          const transcript = Array.from(event.results)
+          const rawTranscript = Array.from(event.results)
             .map(result => result[0]?.transcript || '')
             .join(' ');
 
+          const formatted = formatPunctuation(rawTranscript);
+
           if (target === 'title') {
-            setTitle(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + transcript.trim());
+            setTitle(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + formatted.trim());
           } else if (target === 'content') {
-            setContent(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + transcript.trim());
+            setContent(baselineTextRef.current + (baselineTextRef.current ? ' ' : '') + formatted.trim());
           }
         } catch (err) {
           console.error("Error transcribing result:", err);
@@ -166,6 +182,26 @@ const BlogEditor = () => {
       recognition.start();
       setRecognitionInstance(recognition);
     }
+  };
+
+  // Handle applying a full blog generated from Voice Studio
+  const handleApplyVoiceBlog = ({ title: newTitle, content: newContent }) => {
+    if (newTitle) setTitle(newTitle);
+    if (newContent) setContent(newContent);
+    toast.success('Voice article imported! Analyzing SEO...', { icon: '✨' });
+
+    setTimeout(() => {
+      if (newContent) {
+        aiAPI.seoCheck(newContent, newTitle || title)
+          .then(res => {
+            if (res.data?.success && res.data?.data) {
+              setSeoAnalysis(res.data.data);
+              setSeoScore(res.data.data.score);
+            }
+          })
+          .catch(() => {});
+      }
+    }, 600);
   };
 
   // Load existing blog if editing
@@ -488,6 +524,15 @@ const BlogEditor = () => {
             {/* AI Tools */}
             <div className="hidden md:flex items-center gap-2 mr-2 pr-4 border-r border-surface-200 dark:border-surface-700">
               <button
+                type="button"
+                onClick={() => setShowVoiceStudio(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm cursor-pointer shrink-0"
+                title="Speak your thoughts and let AI generate a structured blog post"
+              >
+                <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
+                <span>🎙️ Voice Studio</span>
+              </button>
+              <button
                 onClick={handleSuggestTitle}
                 disabled={aiLoading}
                 className="btn-ghost btn-sm"
@@ -600,6 +645,14 @@ const BlogEditor = () => {
 
         {/* Mobile AI Tools + LinkedIn Toggle */}
         <div className="md:hidden flex items-center gap-2 p-3 border-b border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-800/50 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setShowVoiceStudio(true)}
+            className="btn-primary btn-sm shrink-0 gap-1 text-xs"
+          >
+            <Mic className="w-3.5 h-3.5" />
+            Voice Studio
+          </button>
           <span className="text-xs text-surface-500 shrink-0">AI:</span>
           <button
             onClick={handleSuggestTitle}
@@ -795,6 +848,7 @@ Remember: AI assists, but you control the final content!"
           onAcceptTitle={handleAcceptTitle}
           onAcceptContent={handleAcceptContent}
           onRejectSuggestion={handleRejectSuggestion}
+          onOpenVoiceStudio={() => setShowVoiceStudio(true)}
         />
       </div>
 
@@ -805,6 +859,13 @@ Remember: AI assists, but you control the final content!"
           onClick={() => setShowAIPanel(false)}
         />
       )}
+
+      {/* Voice-to-Article AI Studio Modal */}
+      <VoiceStudioModal
+        isOpen={showVoiceStudio}
+        onClose={() => setShowVoiceStudio(false)}
+        onApplyBlog={handleApplyVoiceBlog}
+      />
     </div>
   );
 };
