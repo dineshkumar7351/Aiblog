@@ -270,13 +270,17 @@
     display: none;
   }
 
-  /* Hide Clerk "Last used" pill/badge */
-  .cl-socialButtonsBlockButtonBadge,
+  /* Hide Clerk 'Last used' and related auth badges */
   .cl-badge,
-  .cl-tag,
+  .cl-socialButtonsBlockButtonBadge,
+  .cl-lastUsedBadge,
+  .cl-identityPreviewBadge,
+  .cl-internal-badge,
+  .cl-internal-socialButtonsBlockButtonBadge,
+  [class*="cl-"][class*="badge"],
+  [class*="cl-"][class*="Badge"],
   [data-localization-key*="lastUsed"],
-  .cl-socialButtonsBlockButton__lastUsed,
-  .cl-socialButtonsBlockButtonBadge__lastUsed {
+  [data-localization-key*="badge"] {
     display: none !important;
   }
 }
