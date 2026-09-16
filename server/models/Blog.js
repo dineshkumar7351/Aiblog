@@ -29,6 +29,10 @@ const blogSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
+    coverImage: {
+        type: String,
+        default: null
+    },
     status: {
         type: String,
         enum: ['draft', 'published'],

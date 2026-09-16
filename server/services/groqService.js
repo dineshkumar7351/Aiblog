@@ -321,9 +321,62 @@ JSON Schema:
     }
 };
 
+/**
+ * Generate an AI cover image prompt and image URL based on title/content
+ * @param {string} title - Blog title
+ * @param {string} content - Blog content
+ * @returns {Promise<Object>} { imageUrl, prompt }
+ */
+const generateCoverImage = async (title, content = '') => {
+    try {
+        const completion = await callGroqWithFallback({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional digital artist and art director.
+Generate a visually stunning, vivid, detailed text-to-image prompt (under 30 words) for a blog cover banner image based on the article's topic.
+STRICT RULES:
+- Focus on photorealistic, high-end 3D render, cinematic lighting, 8k resolution, vibrant colors.
+- Do NOT include words like "text", "words", "letters", "watermark", "font", "typography".
+- Output ONLY the prompt itself, nothing else.`
+                },
+                {
+                    role: 'user',
+                    content: `Create a captivating blog cover image prompt for:
+TITLE: ${title}
+EXCERPT: ${content.substring(0, 250)}`
+                }
+            ],
+            max_tokens: 100,
+            temperature: 0.7
+        });
+
+        const imagePrompt = (completion.choices[0]?.message?.content || title)
+            .replace(/["'“”«»]/g, '')
+            .trim();
+
+        const cleanPrompt = encodeURIComponent(imagePrompt.substring(0, 150));
+        const seed = Math.floor(Math.random() * 999999);
+        const imageUrl = `https://image.pollinations.ai/prompt/${cleanPrompt}?width=1200&height=630&model=flux&nologo=true&seed=${seed}`;
+
+        return {
+            imageUrl,
+            prompt: imagePrompt
+        };
+    } catch (error) {
+        console.error('Groq generateCoverImage Error:', error.message);
+        const fallbackPrompt = encodeURIComponent((title || 'modern aesthetic technology blog').replace(/[^a-zA-Z0-9 ]/g, ' '));
+        return {
+            imageUrl: `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1200&height=630&model=flux&nologo=true`,
+            prompt: title
+        };
+    }
+};
+
 module.exports = {
     suggestTitles,
     improveContent,
     checkSEO,
-    generateBlogFromVoice
+    generateBlogFromVoice,
+    generateCoverImage
 };

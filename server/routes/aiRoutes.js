@@ -10,7 +10,8 @@ const {
     getSuggestedTitles,
     getImprovedContent,
     getSEOAnalysis,
-    generateBlogFromVoice
+    generateBlogFromVoice,
+    generateCoverImage
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -35,5 +36,6 @@ router.post('/suggest-title', contentValidation, getSuggestedTitles);
 router.post('/improve-content', contentValidation, getImprovedContent);
 router.post('/seo-check', contentValidation, getSEOAnalysis);
 router.post('/voice-to-blog', voiceValidation, generateBlogFromVoice);
+router.post('/generate-cover-image', generateCoverImage);
 
 module.exports = router;

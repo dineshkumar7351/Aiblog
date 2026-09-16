@@ -56,13 +56,15 @@ const createBlog = async (req, res, next) => {
             });
         }
 
-        const { title, content, tags, status } = req.body;
+        const { title, content, tags, status, coverImage, seoScore } = req.body;
 
         const blog = await Blog.create({
             title,
             content,
             tags: tags || [],
             status: status || 'draft',
+            coverImage: coverImage || null,
+            seoScore: seoScore !== undefined ? seoScore : null,
             author: req.user._id
         });
 
@@ -245,7 +247,7 @@ const updateBlog = async (req, res, next) => {
             });
         }
 
-        const { title, content, tags, status, seoScore } = req.body;
+        const { title, content, tags, status, seoScore, coverImage } = req.body;
         const wasPublished = blog.status === 'published';
 
         blog = await Blog.findByIdAndUpdate(
@@ -255,7 +257,8 @@ const updateBlog = async (req, res, next) => {
                 content: content || blog.content,
                 tags: tags !== undefined ? tags : blog.tags,
                 status: status || blog.status,
-                seoScore: seoScore !== undefined ? seoScore : blog.seoScore
+                seoScore: seoScore !== undefined ? seoScore : blog.seoScore,
+                coverImage: coverImage !== undefined ? coverImage : blog.coverImage
             },
             { new: true, runValidators: true }
         ).populate('author', 'name email');

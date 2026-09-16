@@ -109,7 +109,8 @@ export const aiAPI = {
     suggestTitle: (content) => api.post('/ai/suggest-title', { content }),
     improveContent: (content) => api.post('/ai/improve-content', { content }),
     seoCheck: (content, title) => api.post('/ai/seo-check', { content, title }),
-    voiceToBlog: (data) => api.post('/ai/voice-to-blog', data)
+    voiceToBlog: (data) => api.post('/ai/voice-to-blog', data),
+    generateCoverImage: (data) => api.post('/ai/generate-cover-image', data)
 };
 
 export default api;

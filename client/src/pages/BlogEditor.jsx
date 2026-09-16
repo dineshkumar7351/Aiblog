@@ -24,7 +24,12 @@ import {
   AlertCircle, 
   Loader2, 
   Mic, 
-  MicOff 
+  MicOff,
+  Image as ImageIcon,
+  Upload,
+  RefreshCw,
+  X as XIcon,
+  Link2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -37,10 +42,15 @@ const BlogEditor = () => {
   // Blog state
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [coverImage, setCoverImage] = useState('');
   const [status, setStatus] = useState('draft');
   const [seoScore, setSeoScore] = useState(null);
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
+  const [imageGenerating, setImageGenerating] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [imageUrlDraft, setImageUrlDraft] = useState('');
+  const fileInputRef = useRef(null);
 
   // LinkedIn state
   const [linkedinConnected, setLinkedinConnected] = useState(false);
@@ -213,9 +223,10 @@ const BlogEditor = () => {
   };
 
   // Handle applying a full blog generated from Voice Studio
-  const handleApplyVoiceBlog = ({ title: newTitle, content: newContent }) => {
+  const handleApplyVoiceBlog = ({ title: newTitle, content: newContent, coverImage: newCover }) => {
     if (newTitle) setTitle(newTitle);
     if (newContent) setContent(newContent);
+    if (newCover) setCoverImage(newCover);
     toast.success('Voice article imported! Analyzing SEO...', { icon: '✨' });
 
     setTimeout(() => {
@@ -230,6 +241,52 @@ const BlogEditor = () => {
           .catch(() => {});
       }
     }, 600);
+  };
+
+  // Generate AI Cover Image
+  const handleGenerateCoverImage = async () => {
+    if (!title.trim() && !content.trim()) {
+      toast.error('Please enter a title or content first to generate an AI cover image!');
+      return;
+    }
+    setImageGenerating(true);
+    try {
+      const response = await aiAPI.generateCoverImage({
+        title: title.trim() || 'Modern Technology',
+        content: content.trim()
+      });
+      if (response.data?.success && response.data?.data?.imageUrl) {
+        setCoverImage(response.data.data.imageUrl);
+        toast.success('🎨 AI Cover image generated successfully!');
+      }
+    } catch (err) {
+      toast.error('Failed to generate image. Please try again or paste an image URL.');
+    } finally {
+      setImageGenerating(false);
+    }
+  };
+
+  // Handle local image file upload
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (PNG, JPG, WEBP)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCoverImage(reader.result);
+      toast.success('Cover image attached!');
+    };
+    reader.readAsDataURL(file);
   };
 
   // Load existing blog if editing
@@ -322,6 +379,7 @@ const BlogEditor = () => {
       setContent(blog.content);
       setStatus(blog.status);
       setSeoScore(blog.seoScore);
+      setCoverImage(blog.coverImage || '');
     } catch (error) {
       toast.error('Failed to load blog');
       navigate('/blogs');
@@ -347,6 +405,7 @@ const BlogEditor = () => {
       const blogData = {
         title: title.trim(),
         content: content.trim(),
+        coverImage: coverImage || null,
         status: publishStatus,
         seoScore
       };
@@ -355,10 +414,10 @@ const BlogEditor = () => {
 
       if (isEditing) {
         response = await blogAPI.update(id, blogData);
-        toast.success(publishStatus === 'published' ? 'Blog published!' : 'Blog updated!');
+        toast.success(publishStatus === 'published' ? 'Blog published with image & content!' : 'Blog updated!');
       } else {
         response = await blogAPI.create(blogData);
-        toast.success(publishStatus === 'published' ? 'Blog published!' : 'Blog saved as draft!');
+        toast.success(publishStatus === 'published' ? 'Blog published with image & content!' : 'Blog saved as draft!');
       }
 
       const blogId = response?.data?.data?.blog?._id || id;
@@ -763,6 +822,149 @@ const BlogEditor = () => {
                 </p>
               </div>
             )}
+
+            {/* Featured / Cover Image Section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="label flex items-center gap-2 mb-0">
+                  <ImageIcon className="w-4 h-4 text-primary-500" />
+                  <span>Cover / Featured Image</span>
+                </label>
+                
+                {coverImage && (
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage('')}
+                    className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 font-medium transition cursor-pointer"
+                  >
+                    <XIcon className="w-3.5 h-3.5" />
+                    Remove Image
+                  </button>
+                )}
+              </div>
+
+              {coverImage ? (
+                <div className="relative group rounded-2xl overflow-hidden border border-surface-200 dark:border-surface-700 bg-surface-100 dark:bg-surface-800 shadow-md">
+                  <img
+                    src={coverImage}
+                    alt="Blog Cover"
+                    className="w-full h-56 sm:h-72 object-cover object-center transition-transform duration-300 group-hover:scale-[1.01]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+                    <span className="text-xs text-white/90 font-medium">Cover image will be published with content</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleGenerateCoverImage}
+                        disabled={imageGenerating}
+                        className="btn-sm btn-primary text-xs flex items-center gap-1.5 shadow-lg"
+                      >
+                        {imageGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        <span>Regenerate AI</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="btn-sm btn-outline bg-white/90 dark:bg-surface-900/90 text-xs flex items-center gap-1.5"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Change</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-surface-300 dark:border-surface-700 rounded-2xl p-6 text-center bg-surface-50/50 dark:bg-surface-800/30 hover:border-primary-500/50 transition">
+                  <div className="max-w-md mx-auto space-y-3">
+                    <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-primary-500/10 to-secondary-500/10 text-primary-500 flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        Post Content & Image Together
+                      </h4>
+                      <p className="text-xs text-surface-500 mt-0.5">
+                        Generate a banner with AI or upload your own photo.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleGenerateCoverImage}
+                        disabled={imageGenerating}
+                        className="btn-primary btn-sm gap-1.5 shadow-md shadow-primary-500/20 text-xs cursor-pointer"
+                      >
+                        {imageGenerating ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Generating Image...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>✨ AI Generate Cover</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="btn-outline btn-sm gap-1.5 text-xs cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Photo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowUrlInput(!showUrlInput)}
+                        className="btn-ghost btn-sm gap-1.5 text-xs text-surface-600 dark:text-surface-400 cursor-pointer"
+                      >
+                        <Link2 className="w-3.5 h-3.5" />
+                        <span>Paste URL</span>
+                      </button>
+                    </div>
+
+                    {showUrlInput && (
+                      <div className="flex items-center gap-2 pt-2 animate-slide-down">
+                        <input
+                          type="url"
+                          placeholder="https://example.com/image.jpg"
+                          value={imageUrlDraft}
+                          onChange={(e) => setImageUrlDraft(e.target.value)}
+                          className="input input-sm text-xs flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (imageUrlDraft.trim()) {
+                              setCoverImage(imageUrlDraft.trim());
+                              setImageUrlDraft('');
+                              setShowUrlInput(false);
+                              toast.success('Cover image set!');
+                            }
+                          }}
+                          className="btn-primary btn-sm text-xs"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
 
             {/* Title Input */}
             <div>

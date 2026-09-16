@@ -100,6 +100,17 @@ const BlogCard = ({ blog, onDelete }) => {
         </div>
       </div>
 
+      {blog.coverImage && (
+        <Link to={`/blog/${blog._id}`} className="block mb-4 overflow-hidden rounded-xl">
+          <img 
+            src={blog.coverImage} 
+            alt={blog.title} 
+            className="w-full h-44 object-cover hover:scale-105 transition-transform duration-300 rounded-xl bg-surface-100 dark:bg-surface-800"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        </Link>
+      )}
+
       <Link to={`/blog/${blog._id}`}>
         <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors line-clamp-2">
           {blog.title}

@@ -8,7 +8,13 @@
  * - User always controls final content
  */
 
-const { suggestTitles, improveContent, checkSEO } = require('../services/groqService');
+const { 
+    suggestTitles, 
+    improveContent, 
+    checkSEO, 
+    generateBlogFromVoice,
+    generateCoverImage
+} = require('../services/groqService');
 const { validationResult } = require('express-validator');
 
 /**
@@ -169,9 +175,42 @@ const generateBlogFromVoiceController = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Generate AI cover image based on blog title/content
+ * @route   POST /api/ai/generate-cover-image
+ * @access  Private
+ */
+const generateCoverImageController = async (req, res, next) => {
+    try {
+        const { title, content } = req.body;
+
+        if (!title && !content) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a title or content for cover image generation.'
+            });
+        }
+
+        const imageData = await generateCoverImage(title || 'Technology Blog', content || '');
+
+        res.status(200).json({
+            success: true,
+            message: 'Cover image generated successfully!',
+            data: imageData
+        });
+    } catch (error) {
+        console.error('AI Cover Image Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to generate cover image'
+        });
+    }
+};
+
 module.exports = {
     getSuggestedTitles,
     getImprovedContent,
     getSEOAnalysis,
-    generateBlogFromVoice: generateBlogFromVoiceController
+    generateBlogFromVoice: generateBlogFromVoiceController,
+    generateCoverImage: generateCoverImageController
 };

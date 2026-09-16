@@ -309,6 +309,18 @@ const BlogDetail = () => {
             )}
           </div>
 
+          {/* Cover Image */}
+          {blog.coverImage && (
+            <div className="mb-8 rounded-2xl overflow-hidden shadow-md border border-surface-200/60 dark:border-surface-800 bg-surface-100 dark:bg-surface-800">
+              <img
+                src={blog.coverImage}
+                alt={blog.title}
+                className="w-full max-h-[460px] object-cover"
+                onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
+              />
+            </div>
+          )}
+
           {/* Title */}
           <h1 className="text-3xl lg:text-4xl font-display font-bold text-surface-900 dark:text-surface-100 mb-6 leading-tight">
             {blog.title}
