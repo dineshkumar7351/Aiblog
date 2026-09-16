@@ -24,9 +24,7 @@ import ProfileSettings from './pages/ProfileSettings';
 function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <ThemeProvider>
-        <AuthProvider>
-          {/* Toast notifications */}
+      {/* Toast notifications */}
           <Toaster
             position="top-right"
             toastOptions={{
@@ -91,8 +89,6 @@ function App() {
             {/* 404 - Redirect to dashboard */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-        </AuthProvider>
-      </ThemeProvider>
     </BrowserRouter>
   );
 }
