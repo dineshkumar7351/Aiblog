@@ -25,7 +25,8 @@ const AIPanel = ({
   onRejectSuggestion,
   onAcceptTitle,
   onAcceptContent,
-  onOpenVoiceStudio
+  onOpenVoiceStudio,
+  onClose
 }) => {
   const [expandedSection, setExpandedSection] = useState('suggestions');
 
@@ -44,29 +45,40 @@ const AIPanel = ({
   };
 
   return (
-    <aside className="w-80 bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 h-full overflow-y-auto">
+    <aside className="w-80 bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 h-full overflow-y-auto flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 bg-white dark:bg-surface-900 p-4 border-b border-surface-200 dark:border-surface-800 z-10">
+      <div className="sticky top-0 bg-white dark:bg-surface-900 p-3.5 border-b border-surface-200 dark:border-surface-800 z-10 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary-500 to-primary-500 flex items-center justify-center shadow-sm">
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary-500 to-primary-500 flex items-center justify-center shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-surface-900 dark:text-surface-100">AI Assistant</h2>
-              <p className="text-xs text-surface-500">Writing & SEO Copilot</p>
+              <h2 className="text-sm font-bold text-surface-900 dark:text-surface-100 leading-tight">AI Assistant</h2>
+              <p className="text-[10px] text-surface-500">Writing & SEO Copilot</p>
             </div>
           </div>
 
-          {onOpenVoiceStudio && (
-            <button
-              onClick={onOpenVoiceStudio}
-              className="p-1.5 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition cursor-pointer"
-              title="Launch Voice Studio"
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onOpenVoiceStudio && (
+              <button
+                onClick={onOpenVoiceStudio}
+                className="p-1 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition cursor-pointer"
+                title="Launch Voice Studio"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition cursor-pointer"
+                title="Hide AI Assistant Panel"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

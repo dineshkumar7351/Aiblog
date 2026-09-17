@@ -59,7 +59,7 @@ const BlogEditor = () => {
   const [checkingLinkedin, setCheckingLinkedin] = useState(true);
 
   // AI Panel state
-  const [showAIPanel, setShowAIPanel] = useState(true);
+  const [showAIPanel, setShowAIPanel] = useState(false);
   const [showVoiceStudio, setShowVoiceStudio] = useState(false);
   const [showImageStudio, setShowImageStudio] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
@@ -497,6 +497,7 @@ const BlogEditor = () => {
       return;
     }
 
+    setShowAIPanel(true);
     setAiLoading(true);
     setAiLoadingType('title');
     setSuggestions([]);
@@ -522,6 +523,7 @@ const BlogEditor = () => {
       return;
     }
 
+    setShowAIPanel(true);
     setAiLoading(true);
     setAiLoadingType('content');
     setSuggestions([]);
@@ -547,6 +549,7 @@ const BlogEditor = () => {
       return;
     }
 
+    setShowAIPanel(true);
     setAiLoading(true);
     setAiLoadingType('seo');
     setSuggestions([]);
@@ -776,14 +779,19 @@ const BlogEditor = () => {
             {/* Toggle AI Panel */}
             <button
               onClick={() => setShowAIPanel(!showAIPanel)}
-              className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-800 transition shrink-0 lg:hidden cursor-pointer h-8 w-8 flex items-center justify-center"
-              title="Toggle AI Panel"
+              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap shrink-0 h-8 cursor-pointer ${
+                showAIPanel
+                  ? 'bg-primary-50 text-primary-700 dark:bg-primary-950/40 dark:text-primary-300 border border-primary-200 dark:border-primary-800 shadow-sm'
+                  : 'bg-surface-100 text-surface-700 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 border border-surface-200 dark:border-surface-700'
+              }`}
+              title={showAIPanel ? "Close AI Copilot Panel" : "Open AI Copilot Panel"}
             >
               {showAIPanel ? (
-                <PanelRightClose className="w-4 h-4" />
+                <PanelRightClose className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
               ) : (
-                <PanelRightOpen className="w-4 h-4" />
+                <PanelRightOpen className="w-3.5 h-3.5" />
               )}
+              <span className="hidden sm:inline">{showAIPanel ? 'Hide Copilot' : 'AI Copilot'}</span>
             </button>
           </div>
         </div>
@@ -842,20 +850,20 @@ const BlogEditor = () => {
         </div>
 
         {/* Editor Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-surface-50 dark:bg-surface-950">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 bg-surface-50 dark:bg-surface-950">
+          <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5">
             {/* LinkedIn Info Banner */}
             {linkedinToggle && !linkedinConnected && !checkingLinkedin && (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-[#0A66C2]/5 border border-[#0A66C2]/20">
-                <Linkedin className="w-5 h-5 text-[#0A66C2] shrink-0" />
-                <p className="text-sm text-[#0A66C2] dark:text-blue-300">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0A66C2]/5 border border-[#0A66C2]/20">
+                <Linkedin className="w-4 h-4 text-[#0A66C2] shrink-0" />
+                <p className="text-xs sm:text-sm text-[#0A66C2] dark:text-blue-300">
                   <strong>LinkedIn sharing enabled.</strong> When you click Publish, you'll be redirected to LinkedIn to login and authorize. Your blog will be posted automatically after that.
                 </p>
               </div>
             )}
 
             {/* Featured / Cover Image Section */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="label flex items-center gap-2 mb-0">
                   <ImageIcon className="w-4 h-4 text-primary-500" />
@@ -879,9 +887,9 @@ const BlogEditor = () => {
                   <img
                     src={coverImage}
                     alt="Blog Cover"
-                    className="w-full h-56 sm:h-72 object-cover object-center transition-transform duration-300 group-hover:scale-[1.01]"
+                    className="w-full h-36 sm:h-44 md:h-48 max-h-52 object-cover object-center transition-transform duration-300 group-hover:scale-[1.01]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end justify-between p-3.5">
                     <span className="text-xs text-white/90 font-medium">Cover image will be published with content</span>
                     <div className="flex items-center gap-2">
                       <button
@@ -905,10 +913,10 @@ const BlogEditor = () => {
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-surface-300 dark:border-surface-700 rounded-2xl p-6 text-center bg-surface-50/50 dark:bg-surface-800/30 hover:border-primary-500/50 transition">
-                  <div className="max-w-md mx-auto space-y-3">
-                    <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-primary-500/10 to-secondary-500/10 text-primary-500 flex items-center justify-center">
-                      <ImageIcon className="w-6 h-6" />
+                <div className="border-2 border-dashed border-surface-300 dark:border-surface-700 rounded-2xl p-4 sm:p-5 text-center bg-surface-50/50 dark:bg-surface-800/30 hover:border-primary-500/50 transition">
+                  <div className="max-w-md mx-auto space-y-2.5">
+                    <div className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-tr from-primary-500/10 to-secondary-500/10 text-primary-500 flex items-center justify-center">
+                      <ImageIcon className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-surface-900 dark:text-surface-100">
@@ -1071,7 +1079,7 @@ const BlogEditor = () => {
                   ref={contentTextareaRef}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className={`textarea min-h-[400px] font-mono text-sm w-full pb-14 transition-all duration-200 ${
+                  className={`textarea min-h-[220px] sm:min-h-[280px] font-mono text-sm w-full pb-14 resize-y transition-all duration-200 ${
                     isListening && listeningTarget === 'content'
                       ? 'ring-2 ring-rose-500/40 border-rose-500 shadow-lg shadow-rose-500/5'
                       : ''
@@ -1125,9 +1133,9 @@ Spoken Shortcuts:
             </div>
 
             {/* Helper text */}
-            <div className="flex items-center gap-2 p-4 rounded-xl bg-secondary-50 dark:bg-secondary-900/20 border border-secondary-200 dark:border-secondary-800">
-              <Sparkles className="w-5 h-5 text-secondary-500 shrink-0" />
-              <p className="text-sm text-secondary-700 dark:text-secondary-300">
+            <div className="flex items-center gap-2 p-3 sm:p-4 rounded-xl bg-secondary-50 dark:bg-secondary-900/20 border border-secondary-200 dark:border-secondary-800">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-secondary-500 shrink-0" />
+              <p className="text-xs sm:text-sm text-secondary-700 dark:text-secondary-300">
                 <strong>AI Assistant:</strong> Use the buttons above to get title suggestions, 
                 improve your content, or check SEO. Review all suggestions before accepting.
               </p>
@@ -1139,9 +1147,8 @@ Spoken Shortcuts:
       {/* AI Assistant Panel */}
       <div className={`
         ${showAIPanel ? 'block' : 'hidden'} 
-        lg:block
         fixed lg:relative right-0 top-0 h-full z-40
-        bg-white dark:bg-surface-900
+        bg-white dark:bg-surface-900 shrink-0 border-l border-surface-200 dark:border-surface-800
       `}>
         <AIPanel
           suggestions={suggestions}
@@ -1152,6 +1159,7 @@ Spoken Shortcuts:
           onAcceptContent={handleAcceptContent}
           onRejectSuggestion={handleRejectSuggestion}
           onOpenVoiceStudio={() => setShowVoiceStudio(true)}
+          onClose={() => setShowAIPanel(false)}
         />
       </div>
 
