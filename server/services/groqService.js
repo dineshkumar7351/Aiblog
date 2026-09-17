@@ -373,10 +373,109 @@ EXCERPT: ${content.substring(0, 250)}`
     }
 };
 
+/**
+ * Generate a complete, high-quality blog post from an uploaded image (screenshot, certificate, code, infographic, photo)
+ * @param {string} image - Base64 data URL or HTTP image URL
+ * @param {string} userPrompt - Optional guidance from author (e.g. "Focus on my 200 LeetCode problem milestone")
+ * @param {string} tone - Tone of writing (professional, engaging, story, technical)
+ * @returns {Promise<Object>} { title, content, tags, summary }
+ */
+const generateBlogFromImage = async (image, userPrompt = '', tone = 'engaging') => {
+    let extractedText = '';
+
+    try {
+        if (image) {
+            let imageSource = image;
+            if (typeof image === 'string' && image.startsWith('data:image/')) {
+                const matches = image.match(/^data:image\/[a-zA-Z0-9+]+;base64,(.+)$/);
+                if (matches && matches[1]) {
+                    imageSource = Buffer.from(matches[1], 'base64');
+                }
+            }
+
+            const { createWorker } = require('tesseract.js');
+            const worker = await createWorker('eng');
+            const ocrResult = await worker.recognize(imageSource);
+            extractedText = (ocrResult.data?.text || '').trim();
+            await worker.terminate();
+        }
+    } catch (ocrErr) {
+        console.warn('OCR processing warning:', ocrErr.message);
+    }
+
+    try {
+        const completion = await callGroqWithFallback({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an elite content creator, author, and technical storyteller who crafts viral, high-engagement blog posts and LinkedIn articles from screenshots, milestones, achievements, and images.
+
+Your goal is to turn the visual information and extracted metrics/text from the image into a masterpiece article.
+
+STYLE & STRUCTURE GUIDELINES:
+1. TITLE: Catchy, memorable, with an emoji (e.g. "200 Problems Solved! 💻 One More Milestone in My Coding Journey") under 65 characters.
+2. HOOK & STORY: Start with a powerful opening hook celebrating the milestone, progress, or insights.
+3. BODY: Well-structured paragraphs with clear line breaks, reflections, obstacles overcome, and lessons learned.
+4. KEY TAKEAWAYS: Bullet points summarizing practical tips or takeaways for the reader.
+5. CLOSING & CALL TO ACTION: A motivating conclusion looking forward to the next challenge and asking the reader a question.
+6. TAGS: 4-6 relevant hashtags without the # symbol (e.g. ["LeetCode", "DSA", "CodingJourney", "ProblemSolving", "Java"]).
+
+TONE: ${tone || 'engaging and inspiring'}
+
+Respond strictly with a valid JSON object in this format:
+{
+  "title": "<Catchy Title with emoji under 65 chars>",
+  "content": "<Full Markdown Formatted Article with paragraphs and bullet points>",
+  "tags": ["tag1", "tag2", "tag3", "tag4"],
+  "summary": "<Compelling 1-2 sentence meta summary>"
+}`
+                },
+                {
+                    role: 'user',
+                    content: `Here is the data from the user's uploaded image:
+${extractedText ? `EXTRACTED IMAGE TEXT & METRICS:\n"""\n${extractedText.substring(0, 3000)}\n"""` : 'No text could be extracted from the image. Generate based on visual context.'}
+
+${userPrompt ? `AUTHOR'S NOTES & INSTRUCTIONS:\n"""\n${userPrompt}\n"""` : ''}
+
+Generate the complete, perfect blog post JSON:`
+                }
+            ],
+            max_tokens: 2048,
+            temperature: 0.65
+        });
+
+        const responseText = completion.choices[0]?.message?.content || '';
+
+        try {
+            const cleanJson = responseText.replace(/```json\n?|\n?```/g, '').trim();
+            const parsed = JSON.parse(cleanJson);
+            return {
+                title: parsed.title || 'Milestone Achievement & Insights',
+                content: parsed.content || extractedText,
+                tags: Array.isArray(parsed.tags) ? parsed.tags : ['Milestone', 'Tech', 'Growth'],
+                summary: parsed.summary || ''
+            };
+        } catch (parseErr) {
+            console.warn('Image-to-blog JSON parsing failed, using fallback parser');
+            const lines = responseText.split('\n').map(l => l.trim()).filter(Boolean);
+            return {
+                title: (lines[0] || 'Milestone Accomplishment').replace(/^#*\s*/, '').substring(0, 65),
+                content: responseText,
+                tags: ['Milestone', 'Learning', 'Achievement'],
+                summary: lines[1] || ''
+            };
+        }
+    } catch (error) {
+        console.error('Groq generateBlogFromImage Error:', error.message);
+        throw new Error('Failed to generate content from image. Please try again.');
+    }
+};
+
 module.exports = {
     suggestTitles,
     improveContent,
     checkSEO,
     generateBlogFromVoice,
-    generateCoverImage
+    generateCoverImage,
+    generateBlogFromImage
 };

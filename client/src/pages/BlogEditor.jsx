@@ -8,6 +8,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { blogAPI, aiAPI, linkedinAPI } from '../services/api';
 import AIPanel from '../components/AIPanel';
 import VoiceStudioModal from '../components/VoiceStudioModal';
+import ImageToContentModal from '../components/ImageToContentModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   Lightbulb, 
@@ -60,6 +61,7 @@ const BlogEditor = () => {
   // AI Panel state
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [showVoiceStudio, setShowVoiceStudio] = useState(false);
+  const [showImageStudio, setShowImageStudio] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiLoadingType, setAiLoadingType] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -477,6 +479,17 @@ const BlogEditor = () => {
     }
   };
 
+
+
+  // Apply image-generated blog with cover image
+  const handleApplyImageBlog = ({ title: newTitle, content: newContent, coverImage: newCover }) => {
+    if (newTitle) setTitle(newTitle);
+    if (newContent) setContent(newContent);
+    if (newCover) setCoverImage(newCover);
+    setShowImageStudio(false);
+    toast.success('Image blog & cover applied to editor!');
+  };
+
   // AI: Suggest Titles
   const handleSuggestTitle = async () => {
     if (content.trim().length < 50) {
@@ -623,6 +636,15 @@ const BlogEditor = () => {
             <div className="hidden xl:flex items-center gap-1.5 pr-2.5 border-r border-surface-200 dark:border-surface-700">
               <button
                 type="button"
+                onClick={() => setShowImageStudio(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-pink-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                title="Upload an image/screenshot and let AI write a full blog post"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span>📸 Image to Blog</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setShowVoiceStudio(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
                 title="Speak your thoughts to generate complete article"
@@ -659,8 +681,17 @@ const BlogEditor = () => {
               </button>
             </div>
 
-            {/* Quick Voice Studio trigger for medium screens */}
-            <div className="flex xl:hidden items-center">
+            {/* Quick AI buttons for medium screens */}
+            <div className="flex xl:hidden items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setShowImageStudio(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500/15 to-purple-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                title="Image to Blog"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span className="hidden sm:inline">Image AI</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setShowVoiceStudio(true)}
@@ -668,7 +699,7 @@ const BlogEditor = () => {
                 title="Voice Studio"
               >
                 <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
-                <span className="hidden sm:inline">Voice Studio</span>
+                <span className="hidden sm:inline">Voice</span>
               </button>
             </div>
 
@@ -1137,6 +1168,13 @@ Spoken Shortcuts:
         isOpen={showVoiceStudio}
         onClose={() => setShowVoiceStudio(false)}
         onApplyBlog={handleApplyVoiceBlog}
+      />
+
+      {/* Image-to-Article AI Studio Modal */}
+      <ImageToContentModal
+        isOpen={showImageStudio}
+        onClose={() => setShowImageStudio(false)}
+        onApplyBlog={handleApplyImageBlog}
       />
     </div>
   );

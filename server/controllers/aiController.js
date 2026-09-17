@@ -207,10 +207,46 @@ const generateCoverImageController = async (req, res, next) => {
     }
 };
 
+/**
+ * @desc    Generate full blog post from uploaded image (screenshot, certificate, code, etc.)
+ * @route   POST /api/ai/image-to-content
+ * @access  Private
+ */
+const generateBlogFromImageController = async (req, res, next) => {
+    try {
+        const { image, userPrompt, tone } = req.body;
+
+        if (!image && !userPrompt) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide an image or description for AI content generation.'
+            });
+        }
+
+        const blogData = await generateBlogFromImage(image, userPrompt || '', tone || 'engaging');
+
+        res.status(200).json({
+            success: true,
+            message: 'Blog generated successfully from your image!',
+            data: {
+                ...blogData,
+                coverImage: image || null
+            }
+        });
+    } catch (error) {
+        console.error('AI Image to Content Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to generate content from image'
+        });
+    }
+};
+
 module.exports = {
     getSuggestedTitles,
     getImprovedContent,
     getSEOAnalysis,
     generateBlogFromVoice: generateBlogFromVoiceController,
-    generateCoverImage: generateCoverImageController
+    generateCoverImage: generateCoverImageController,
+    generateBlogFromImage: generateBlogFromImageController
 };

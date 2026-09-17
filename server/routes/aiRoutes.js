@@ -11,7 +11,8 @@ const {
     getImprovedContent,
     getSEOAnalysis,
     generateBlogFromVoice,
-    generateCoverImage
+    generateCoverImage,
+    generateBlogFromImage
 } = require('../controllers/aiController');
 const { protect } = require('../middleware/auth');
 
@@ -37,5 +38,6 @@ router.post('/improve-content', contentValidation, getImprovedContent);
 router.post('/seo-check', contentValidation, getSEOAnalysis);
 router.post('/voice-to-blog', voiceValidation, generateBlogFromVoice);
 router.post('/generate-cover-image', generateCoverImage);
+router.post('/image-to-content', generateBlogFromImage);
 
 module.exports = router;
