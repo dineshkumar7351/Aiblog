@@ -150,6 +150,7 @@ const handleLinkedInCallback = async (req, res) => {
                         blog,
                         authorName: blog.author?.name,
                         blogUrl: statePayload.blogUrl || `${getClientBaseUrl()}/blog/${blog._id.toString()}`,
+                        imageUrl: blog.coverImage,
                         userId: statePayload.userId
                     });
 

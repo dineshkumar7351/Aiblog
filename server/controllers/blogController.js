@@ -21,6 +21,7 @@ const tryAutoLinkedInPost = async ({ blog, userId }) => {
             blog,
             authorName: blog.author?.name,
             blogUrl,
+            imageUrl: blog.coverImage,
             userId
         });
 
@@ -421,7 +422,7 @@ const shareBlogToSocial = async (req, res, next) => {
             blog,
             authorName: blog.author?.name,
             blogUrl: req.body.blogUrl,
-            imageUrl: req.body.imageUrl,
+            imageUrl: req.body.imageUrl || blog.coverImage,
             userId: req.user._id.toString()
         };
 

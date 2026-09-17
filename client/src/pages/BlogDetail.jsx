@@ -109,7 +109,8 @@ const BlogDetail = () => {
     try {
       const response = await blogAPI.shareToSocial(blog._id, {
         platforms,
-        blogUrl
+        blogUrl,
+        imageUrl: blog.coverImage
       });
 
       const results = response.data?.data?.results || [];

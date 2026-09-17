@@ -25,17 +25,129 @@ const truncateText = (value, max) => {
 };
 
 const buildPostText = (blog, authorName, blogUrl, maxLength) => {
-    const headline = `${blog.title}`;
-    const byline = authorName ? `By ${authorName}` : '';
-    const summary = truncateText(blog.content.replace(/\s+/g, ' ').trim(), 700);
-    const readMore = blogUrl ? `Read more: ${blogUrl}` : '';
+    const headline = blog.title ? `${blog.title.trim()}` : '';
+    
+    // Format tags into hashtags like #LeetCode #DSA #CodingJourney
+    const hashtags = Array.isArray(blog.tags) && blog.tags.length > 0
+        ? blog.tags
+            .map(t => `#${String(t).replace(/[^a-zA-Z0-9]/g, '')}`)
+            .filter(t => t.length > 1)
+            .join(' ')
+        : '';
 
-    const text = [headline, byline, '', summary, '', readMore]
-        .filter(Boolean)
+    // Clean markdown formatting while preserving natural paragraphs
+    let cleanContent = (blog.content || '')
+        .replace(/#{1,6}\s+/g, '') // remove markdown header prefixes
+        .replace(/\*\*(.*?)\*\*/g, '$1') // remove bold
+        .replace(/\*(.*?)\*/g, '$1') // remove italic
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // replace links with link text
+        .trim();
+
+    const summary = truncateText(cleanContent, 2000);
+    const readMore = blogUrl ? `\n\n📖 Read full blog post: ${blogUrl}` : '';
+    const tagsSection = hashtags ? `\n\n${hashtags}` : '';
+
+    const text = [headline, '', summary, readMore, tagsSection]
+        .filter(part => part !== '')
         .join('\n')
         .trim();
 
     return truncateText(text, maxLength);
+};
+
+const fetchImageBuffer = async (imageUrl) => {
+    if (!imageUrl || typeof imageUrl !== 'string') return null;
+
+    try {
+        if (imageUrl.startsWith('data:image/')) {
+            const matches = imageUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+            if (matches && matches[2]) {
+                const format = matches[1].toLowerCase();
+                const mimeType = `image/${format === 'jpg' ? 'jpeg' : format}`;
+                return {
+                    buffer: Buffer.from(matches[2], 'base64'),
+                    mimeType
+                };
+            }
+        }
+
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            const response = await fetch(imageUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                }
+            });
+            if (!response.ok) return null;
+            const arrayBuffer = await response.arrayBuffer();
+            const contentType = response.headers.get('content-type') || 'image/jpeg';
+            return {
+                buffer: Buffer.from(arrayBuffer),
+                mimeType: contentType.split(';')[0]
+            };
+        }
+    } catch (error) {
+        console.warn('Failed to fetch image buffer for LinkedIn:', error.message);
+    }
+
+    return null;
+};
+
+const uploadImageToLinkedIn = async ({ accessToken, personId, imageBuffer, mimeType }) => {
+    try {
+        // Step 1: Register upload with LinkedIn
+        const registerPayload = {
+            registerUploadRequest: {
+                recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+                owner: `urn:li:person:${personId}`,
+                supportedUploadMechanism: ['SYNCHRONOUS_UPLOAD']
+            }
+        };
+
+        const registerResponse = await fetch('https://api.linkedin.com/v2/assets?action=registerUpload', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'X-Restli-Protocol-Version': '2.0.0'
+            },
+            body: JSON.stringify(registerPayload)
+        });
+
+        if (!registerResponse.ok) {
+            const errorMsg = await parseApiError(registerResponse);
+            console.warn('LinkedIn image registerUpload failed:', errorMsg);
+            return null;
+        }
+
+        const registerData = await registerResponse.json();
+        const uploadUrl = registerData.value?.uploadMechanism?.['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']?.uploadUrl;
+        const assetUrn = registerData.value?.asset;
+
+        if (!uploadUrl || !assetUrn) {
+            console.warn('LinkedIn did not return uploadUrl or assetUrn');
+            return null;
+        }
+
+        // Step 2: Upload image binary
+        const uploadResponse = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': mimeType || 'image/jpeg'
+            },
+            body: imageBuffer
+        });
+
+        if (!uploadResponse.ok) {
+            console.warn('LinkedIn image binary upload failed with status:', uploadResponse.status);
+            return null;
+        }
+
+        return assetUrn;
+    } catch (error) {
+        console.warn('LinkedIn image upload failed:', error.message);
+        return null;
+    }
 };
 
 const parseApiError = async (response) => {
@@ -67,7 +179,7 @@ const isLinkedInAuthError = (status, message = '') => {
         || normalizedMessage.includes('scope');
 };
 
-const postToLinkedIn = async ({ blog, authorName, blogUrl, userId }) => {
+const postToLinkedIn = async ({ blog, authorName, blogUrl, imageUrl, userId }) => {
     const tokenInfo = getLinkedInToken(userId);
 
     if (!tokenInfo?.accessToken || !tokenInfo?.personId) {
@@ -83,16 +195,51 @@ const postToLinkedIn = async ({ blog, authorName, blogUrl, userId }) => {
 
     const text = buildPostText(blog, authorName, blogUrl, 2900);
 
+    // Check if there is an image to attach (either from coverImage or passed imageUrl)
+    const targetImageUrl = imageUrl || blog.coverImage;
+    let assetUrn = null;
+
+    if (targetImageUrl) {
+        const imgData = await fetchImageBuffer(targetImageUrl);
+        if (imgData?.buffer) {
+            assetUrn = await uploadImageToLinkedIn({
+                accessToken,
+                personId,
+                imageBuffer: imgData.buffer,
+                mimeType: imgData.mimeType
+            });
+        }
+    }
+
+    const shareContent = {
+        shareCommentary: {
+            text
+        }
+    };
+
+    if (assetUrn) {
+        shareContent.shareMediaCategory = 'IMAGE';
+        shareContent.media = [
+            {
+                status: 'READY',
+                description: {
+                    text: truncateText(blog.title || 'Blog Post', 200)
+                },
+                media: assetUrn,
+                title: {
+                    text: truncateText(blog.title || 'Blog Post', 200)
+                }
+            }
+        ];
+    } else {
+        shareContent.shareMediaCategory = 'NONE';
+    }
+
     const requestPayload = {
         author: `urn:li:person:${personId}`,
         lifecycleState: 'PUBLISHED',
         specificContent: {
-            'com.linkedin.ugc.ShareContent': {
-                shareCommentary: {
-                    text
-                },
-                shareMediaCategory: 'NONE'
-            }
+            'com.linkedin.ugc.ShareContent': shareContent
         },
         visibility: {
             'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
