@@ -449,18 +449,29 @@ Generate the complete, perfect blog post JSON:`
         try {
             const cleanJson = responseText.replace(/```json\n?|\n?```/g, '').trim();
             const parsed = JSON.parse(cleanJson);
+
+            // Clean up any stray tags line accidentally appended inside content
+            let cleanBody = (parsed.content || extractedText || '')
+                .replace(/^(\*\*Tags:\*\*|Tags:)[^\n]*\n*/im, '')
+                .replace(/\n*(\*\*Tags:\*\*|Tags:)[^\n]*$/im, '')
+                .trim();
+
             return {
-                title: parsed.title || 'Milestone Achievement & Insights',
-                content: parsed.content || extractedText,
+                title: (parsed.title || 'Milestone Achievement & Insights').replace(/["']/g, '').trim(),
+                content: cleanBody,
                 tags: Array.isArray(parsed.tags) ? parsed.tags : ['Milestone', 'Tech', 'Growth'],
                 summary: parsed.summary || ''
             };
         } catch (parseErr) {
             console.warn('Image-to-blog JSON parsing failed, using fallback parser');
             const lines = responseText.split('\n').map(l => l.trim()).filter(Boolean);
+            const rawBody = responseText
+                .replace(/^(\*\*Tags:\*\*|Tags:)[^\n]*\n*/im, '')
+                .replace(/\n*(\*\*Tags:\*\*|Tags:)[^\n]*$/im, '')
+                .trim();
             return {
                 title: (lines[0] || 'Milestone Accomplishment').replace(/^#*\s*/, '').substring(0, 65),
-                content: responseText,
+                content: rawBody,
                 tags: ['Milestone', 'Learning', 'Achievement'],
                 summary: lines[1] || ''
             };

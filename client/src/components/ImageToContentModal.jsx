@@ -232,12 +232,12 @@ const ImageToContentModal = ({ isOpen, onClose, onApplyBlog }) => {
                   value={urlDraft}
                   onChange={(e) => setUrlDraft(e.target.value)}
                   placeholder="https://example.com/screenshot.png"
-                  className="input-field text-xs flex-1"
+                  className="flex-1 px-3 py-2 rounded-xl border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={handleApplyUrl}
-                  className="btn-primary text-xs px-3 py-2"
+                  className="btn-primary text-xs px-3.5 py-2 shrink-0"
                 >
                   Load
                 </button>
@@ -255,7 +255,7 @@ const ImageToContentModal = ({ isOpen, onClose, onApplyBlog }) => {
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
               placeholder="e.g., Solved 200 DSA problems in 100 days. Emphasize consistency, problem-solving mindset, and Java solutions."
-              className="input-field text-xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition shadow-sm resize-y"
             />
           </div>
 
@@ -307,59 +307,68 @@ const ImageToContentModal = ({ isOpen, onClose, onApplyBlog }) => {
 
           {/* Generated Result Preview */}
           {generatedData && (
-            <div className="mt-4 p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/30 dark:bg-emerald-950/20 space-y-3 animate-fade-in">
-              <div className="flex items-center justify-between">
+            <div className="mt-4 p-5 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/25 space-y-4 animate-fade-in shadow-sm">
+              <div className="flex items-center justify-between pb-2 border-b border-emerald-200/60 dark:border-emerald-900/50">
                 <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                   <Check className="w-4 h-4" /> Ready to Apply
                 </span>
-                <span className="text-[11px] text-surface-500">
+                <span className="text-xs font-medium text-surface-500">
                   {generatedData.content?.split(/\s+/).filter(Boolean).length || 0} words
                 </span>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-surface-600 dark:text-surface-400 mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-surface-700 dark:text-surface-300">
                   Title:
                 </label>
                 <input
                   type="text"
                   value={generatedData.title}
                   onChange={(e) => setGeneratedData({ ...generatedData, title: e.target.value })}
-                  className="input-field text-xs font-semibold"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition shadow-sm"
+                  placeholder="Blog post title"
                 />
               </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-surface-600 dark:text-surface-400 mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-surface-700 dark:text-surface-300">
                   Content Preview:
                 </label>
                 <textarea
-                  rows={6}
+                  rows={8}
                   value={generatedData.content}
                   onChange={(e) => setGeneratedData({ ...generatedData, content: e.target.value })}
-                  className="input-field text-xs font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 text-sm font-sans leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition shadow-sm resize-y"
+                  placeholder="Generated article content..."
                 />
               </div>
 
               {generatedData.tags && generatedData.tags.length > 0 && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <Tag className="w-3.5 h-3.5 text-surface-400" />
-                  {generatedData.tags.map((tag, idx) => (
-                    <span key={idx} className="text-[11px] px-2 py-0.5 rounded-md bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300">
-                      #{tag}
-                    </span>
-                  ))}
+                <div className="space-y-1.5 pt-1">
+                  <span className="block text-xs font-semibold text-surface-600 dark:text-surface-400">
+                    Hashtags:
+                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Tag className="w-3.5 h-3.5 text-surface-400" />
+                    {generatedData.tags.map((tag, idx) => (
+                      <span key={idx} className="text-xs px-2.5 py-1 rounded-lg bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 font-medium shadow-2xs">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              <button
-                type="button"
-                onClick={handleApply}
-                className="w-full py-2.5 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
-              >
-                <span>Apply to Editor with Cover Image</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  className="w-full py-3 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 cursor-pointer text-sm"
+                >
+                  <span>Apply to Editor with Cover Image</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
