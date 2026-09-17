@@ -13,7 +13,8 @@ const {
     improveContent, 
     checkSEO, 
     generateBlogFromVoice,
-    generateCoverImage
+    generateCoverImage,
+    generateBlogFromImage
 } = require('../services/groqService');
 const { validationResult } = require('express-validator');
 
