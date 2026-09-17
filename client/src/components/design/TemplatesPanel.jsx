@@ -9,6 +9,7 @@ import { Search, Sparkles, ChevronRight } from 'lucide-react';
 // Template categories
 const categories = [
   'All',
+  'LinkedIn Banners',
   'Social Media',
   'Marketing',
   'Business',
@@ -19,6 +20,548 @@ const categories = [
 
 // Sample templates (in production, these would come from an API)
 const templates = [
+  {
+    id: 'li-1',
+    name: 'AI & Cloud Systems Architect',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=200&fit=crop',
+    backgroundColor: '#090d16',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#090d16',
+        selectable: false,
+      },
+      {
+        type: 'rect',
+        left: 80,
+        top: 55,
+        width: 320,
+        height: 34,
+        rx: 17,
+        ry: 17,
+        fill: '#1e293b',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: '⚡ AI SYSTEMS & CLOUD ARCHITECTURE',
+        left: 98,
+        top: 63,
+        fontSize: 14,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#38bdf8',
+      },
+      {
+        type: 'text',
+        text: 'Building Scalable AI Platforms & Web Apps',
+        left: 80,
+        top: 110,
+        fontSize: 52,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'LLMs • Distributed Systems • React • Node.js • Cloud Architecture',
+        left: 80,
+        top: 185,
+        fontSize: 24,
+        fontFamily: 'Arial',
+        fontWeight: 'normal',
+        fill: '#94a3b8',
+      },
+      {
+        type: 'rect',
+        left: 80,
+        top: 280,
+        width: 440,
+        height: 48,
+        rx: 24,
+        ry: 24,
+        fill: '#0f172a',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: '🚀 Available for Advisory & Engineering Leadership',
+        left: 105,
+        top: 294,
+        fontSize: 16,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#22c55e',
+      },
+      {
+        type: 'circle',
+        left: 1300,
+        top: 60,
+        radius: 120,
+        fill: '#3b82f620',
+        selectable: true,
+      },
+      {
+        type: 'circle',
+        left: 1400,
+        top: 100,
+        radius: 90,
+        fill: '#8b5cf625',
+        selectable: true,
+      }
+    ],
+  },
+  {
+    id: 'li-2',
+    name: 'Full Stack & Software Lead',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=200&fit=crop',
+    backgroundColor: '#030712',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#030712',
+        selectable: false,
+      },
+      {
+        type: 'rect',
+        left: 80,
+        top: 50,
+        width: 260,
+        height: 32,
+        rx: 16,
+        ry: 16,
+        fill: '#052e16',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: '💻 SENIOR FULL STACK DEV',
+        left: 98,
+        top: 58,
+        fontSize: 14,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#4ade80',
+      },
+      {
+        type: 'text',
+        text: 'Code. Ship. Scale. Iterate.',
+        left: 80,
+        top: 105,
+        fontSize: 56,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'Transforming ideas into resilient high-throughput production software',
+        left: 80,
+        top: 185,
+        fontSize: 24,
+        fontFamily: 'Arial',
+        fill: '#cbd5e1',
+      },
+      {
+        type: 'text',
+        text: 'TypeScript • Next.js • Python • PostgreSQL • Docker • AWS',
+        left: 80,
+        top: 270,
+        fontSize: 20,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#38bdf8',
+      }
+    ],
+  },
+  {
+    id: 'li-3',
+    name: 'B2B SaaS Founder & Strategist',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=200&fit=crop',
+    backgroundColor: '#0c1a30',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#0c1a30',
+        selectable: false,
+      },
+      {
+        type: 'text',
+        text: 'FOUNDER & TECH STRATEGIST',
+        left: 80,
+        top: 60,
+        fontSize: 16,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#f59e0b',
+      },
+      {
+        type: 'text',
+        text: 'Scaling SaaS from Zero to Market Leader',
+        left: 80,
+        top: 105,
+        fontSize: 50,
+        fontFamily: 'Georgia',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'Product-Led Growth • AI Workflows • Enterprise Architecture • Retention',
+        left: 80,
+        top: 185,
+        fontSize: 22,
+        fontFamily: 'Arial',
+        fill: '#93c5fd',
+      },
+      {
+        type: 'rect',
+        left: 80,
+        top: 260,
+        width: 380,
+        height: 48,
+        rx: 12,
+        ry: 12,
+        fill: '#2563eb',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: 'Connect to talk AI & SaaS Growth →',
+        left: 105,
+        top: 274,
+        fontSize: 16,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      }
+    ],
+  },
+  {
+    id: 'li-4',
+    name: 'AI Writer & Thought Leader',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=200&fit=crop',
+    backgroundColor: '#170f2e',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#170f2e',
+        selectable: false,
+      },
+      {
+        type: 'text',
+        text: '✨ TECH JOURNALIST & THOUGHT LEADER',
+        left: 80,
+        top: 60,
+        fontSize: 15,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#c084fc',
+      },
+      {
+        type: 'text',
+        text: 'Making Sense of the AI Revolution',
+        left: 80,
+        top: 105,
+        fontSize: 52,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'Deep Dives on Generative AI • Engineering Culture • High-Growth Startups',
+        left: 80,
+        top: 185,
+        fontSize: 24,
+        fontFamily: 'Arial',
+        fill: '#e9d5ff',
+      },
+      {
+        type: 'text',
+        text: 'Read weekly articles on BlogAI • 50k+ readers worldwide',
+        left: 80,
+        top: 260,
+        fontSize: 18,
+        fontFamily: 'Arial',
+        fill: '#a855f7',
+      }
+    ],
+  },
+  {
+    id: 'li-5',
+    name: 'Data Science & Deep Learning',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=200&fit=crop',
+    backgroundColor: '#0a101f',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#0a101f',
+        selectable: false,
+      },
+      {
+        type: 'text',
+        text: '📊 DATA SCIENTIST & ML RESEARCHER',
+        left: 80,
+        top: 60,
+        fontSize: 15,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#2dd4bf',
+      },
+      {
+        type: 'text',
+        text: 'Turning Complex Data Into Actionable Intelligence',
+        left: 80,
+        top: 105,
+        fontSize: 48,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'Deep Learning • Predictive Analytics • PyTorch • Big Data Architecture',
+        left: 80,
+        top: 185,
+        fontSize: 22,
+        fontFamily: 'Arial',
+        fill: '#94a3b8',
+      }
+    ],
+  },
+  {
+    id: 'li-6',
+    name: 'LinkedIn Post Cover - Tech Guide',
+    category: 'LinkedIn Banners',
+    width: 1200,
+    height: 627,
+    presetName: 'LinkedIn Post / Article Cover',
+    thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&h=314&fit=crop',
+    backgroundColor: '#0f172a',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1200,
+        height: 627,
+        fill: '#0f172a',
+        selectable: false,
+      },
+      {
+        type: 'rect',
+        left: 60,
+        top: 60,
+        width: 220,
+        height: 36,
+        rx: 18,
+        ry: 18,
+        fill: '#1e293b',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: '🔥 MUST READ ARTICLE',
+        left: 80,
+        top: 70,
+        fontSize: 14,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#f43f5e',
+      },
+      {
+        type: 'text',
+        text: 'Mastering Modern Tech:',
+        left: 60,
+        top: 130,
+        fontSize: 60,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'A Complete Architectural Guide',
+        left: 60,
+        top: 215,
+        fontSize: 52,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#60a5fa',
+      },
+      {
+        type: 'text',
+        text: 'How high-growth tech teams build, deploy, and scale modern AI web applications in 2026.',
+        left: 60,
+        top: 310,
+        fontSize: 24,
+        fontFamily: 'Arial',
+        fill: '#94a3b8',
+      },
+      {
+        type: 'rect',
+        left: 60,
+        top: 480,
+        width: 320,
+        height: 52,
+        rx: 14,
+        ry: 14,
+        fill: '#2563eb',
+        selectable: true,
+      },
+      {
+        type: 'text',
+        text: 'Read Article on BlogAI →',
+        left: 85,
+        top: 494,
+        fontSize: 18,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      }
+    ],
+  },
+  {
+    id: 'li-7',
+    name: 'LinkedIn Post Cover - AI Future',
+    category: 'LinkedIn Banners',
+    width: 1200,
+    height: 627,
+    presetName: 'LinkedIn Post / Article Cover',
+    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=314&fit=crop',
+    backgroundColor: '#130d24',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1200,
+        height: 627,
+        fill: '#130d24',
+        selectable: false,
+      },
+      {
+        type: 'text',
+        text: 'THE AI REVOLUTION',
+        left: 60,
+        top: 80,
+        fontSize: 18,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#a855f7',
+      },
+      {
+        type: 'text',
+        text: 'The Future of Autonomous Code',
+        left: 60,
+        top: 140,
+        fontSize: 58,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'Autonomous agents, self-healing codebases, and the new paradigm of software development.',
+        left: 60,
+        top: 240,
+        fontSize: 24,
+        fontFamily: 'Arial',
+        fill: '#d8b4fe',
+      }
+    ],
+  },
+  {
+    id: 'li-8',
+    name: 'Cybersecurity & DevSecOps Lead',
+    category: 'LinkedIn Banners',
+    width: 1584,
+    height: 396,
+    presetName: 'LinkedIn Banner',
+    thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=200&fit=crop',
+    backgroundColor: '#021e14',
+    objects: [
+      {
+        type: 'rect',
+        left: 0,
+        top: 0,
+        width: 1584,
+        height: 396,
+        fill: '#021e14',
+        selectable: false,
+      },
+      {
+        type: 'text',
+        text: '🛡️ CLOUD SECURITY & ZERO TRUST',
+        left: 80,
+        top: 60,
+        fontSize: 15,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#34d399',
+      },
+      {
+        type: 'text',
+        text: 'Securing Mission-Critical Cloud Infrastructure',
+        left: 80,
+        top: 105,
+        fontSize: 50,
+        fontFamily: 'Arial',
+        fontWeight: 'bold',
+        fill: '#ffffff',
+      },
+      {
+        type: 'text',
+        text: 'DevSecOps • Incident Response • Zero Trust Security • Kubernetes Hardening',
+        left: 80,
+        top: 185,
+        fontSize: 22,
+        fontFamily: 'Arial',
+        fill: '#a7f3d0',
+      }
+    ],
+  },
   {
     id: 1,
     name: 'Creative Portfolio',
@@ -392,24 +935,34 @@ const TemplatesPanel = ({ onApplyTemplate, canvasSize }) => {
       {/* Templates Grid */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="grid grid-cols-2 gap-3">
-          {filteredTemplates.map((template) => (
-            <button
-              key={template.id}
-              onClick={() => onApplyTemplate(template)}
-              className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-100 dark:bg-surface-800 hover:ring-2 hover:ring-primary-500 transition-all"
-            >
-              <img
-                src={template.thumbnail}
-                alt={template.name}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="absolute bottom-0 left-0 right-0 p-2">
-                  <p className="text-xs text-white font-medium truncate">{template.name}</p>
+          {filteredTemplates.map((template) => {
+            const isLinkedIn = template.category === 'LinkedIn Banners';
+            return (
+              <button
+                key={template.id}
+                onClick={() => onApplyTemplate(template)}
+                className={`group relative rounded-xl overflow-hidden bg-surface-100 dark:bg-surface-800 hover:ring-2 hover:ring-primary-500 transition-all text-left ${
+                  isLinkedIn ? 'col-span-2 aspect-[3.8/1] shadow-sm' : 'aspect-[4/5]'
+                }`}
+              >
+                <img
+                  src={template.thumbnail}
+                  alt={template.name}
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2.5">
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-xs text-white font-semibold truncate">{template.name}</p>
+                    {isLinkedIn && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0A66C2] text-white font-bold shrink-0">
+                        {template.width}×{template.height}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
         {filteredTemplates.length === 0 && (

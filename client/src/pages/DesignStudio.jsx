@@ -24,21 +24,24 @@ import {
   Eye,
   Grid3X3,
   ArrowLeft,
-  Home
+  Home,
+  Linkedin,
+  Check
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import DesignSidebar from '../components/design/DesignSidebar';
 import DesignToolbar from '../components/design/DesignToolbar';
 
 const CANVAS_PRESETS = [
+  { name: 'LinkedIn Banner (Profile)', width: 1584, height: 396 },
+  { name: 'LinkedIn Post / Article Cover', width: 1200, height: 627 },
   { name: 'Custom', width: 800, height: 600 },
   { name: 'Instagram Post', width: 1080, height: 1080 },
   { name: 'Instagram Story', width: 1080, height: 1920 },
   { name: 'Facebook Post', width: 1200, height: 630 },
   { name: 'Twitter Post', width: 1200, height: 675 },
   { name: 'YouTube Thumbnail', width: 1280, height: 720 },
-  { name: 'LinkedIn Banner', width: 1584, height: 396 },
   { name: 'Presentation', width: 1920, height: 1080 },
   { name: 'A4 Document', width: 595, height: 842 },
   { name: 'Business Card', width: 1050, height: 600 },
@@ -47,13 +50,22 @@ const CANVAS_PRESETS = [
 
 const DesignStudio = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const presetParam = searchParams.get('preset');
+
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
   const containerRef = useRef(null);
   
   const [activePanel, setActivePanel] = useState('templates');
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
-  const [selectedPreset, setSelectedPreset] = useState('Custom');
+  const [canvasSize, setCanvasSize] = useState(
+    presetParam === 'linkedin' 
+      ? { width: 1584, height: 396 } 
+      : { width: 800, height: 600 }
+  );
+  const [selectedPreset, setSelectedPreset] = useState(
+    presetParam === 'linkedin' ? 'LinkedIn Banner (Profile)' : 'Custom'
+  );
   const [zoom, setZoom] = useState(1);
   const [selectedObject, setSelectedObject] = useState(null);
   const [history, setHistory] = useState([]);
@@ -257,35 +269,92 @@ const DesignStudio = () => {
     }
   };
 
-  // Export as image
+  // Handle Export & Download (high-res 2x multiplier for crisp LinkedIn quality)
   const handleExport = (format = 'png') => {
-    if (fabricRef.current) {
-      const dataURL = fabricRef.current.toDataURL({
-        format: format,
-        quality: 1,
-        multiplier: 2,
+    if (!fabricRef.current) return;
+
+    try {
+      const multiplier = format === 'svg' ? 1 : 2;
+      const fileName = `linkedin-banner-${canvasSize.width}x${canvasSize.height}.${format}`;
+
+      if (format === 'svg') {
+        const svgData = fabricRef.current.toSVG();
+        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        toast.success(`Exported as SVG!`);
+        return;
+      }
+
+      const dataUrl = fabricRef.current.toDataURL({
+        format: format === 'jpeg' ? 'jpeg' : 'png',
+        quality: format === 'jpeg' ? 0.95 : 1,
+        multiplier: multiplier,
       });
-      
+
       const link = document.createElement('a');
-      link.download = `design-${Date.now()}.${format}`;
-      link.href = dataURL;
+      link.href = dataUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
       link.click();
-      toast.success(`Exported as ${format.toUpperCase()}`);
+      document.body.removeChild(link);
+
+      toast.success(`🎉 Downloaded high-res ${format.toUpperCase()} (${canvasSize.width * multiplier}×${canvasSize.height * multiplier}px)!`);
+    } catch (err) {
+      console.error('Export error:', err);
+      toast.error('Failed to export image. Please try again.');
     }
   };
 
-  // Save design as JSON
+  // Set as Blog Cover & direct LinkedIn publish option
+  const handleSetAsBlogCover = () => {
+    if (!fabricRef.current) return;
+
+    try {
+      const dataUrl = fabricRef.current.toDataURL({
+        format: 'png',
+        quality: 1,
+        multiplier: 1.5,
+      });
+
+      localStorage.setItem('pendingBlogCover', dataUrl);
+      toast.success('✨ Banner set as Blog Cover! Redirecting to Editor...', { icon: '🔗', duration: 2500 });
+      setTimeout(() => {
+        navigate('/write?withCover=true');
+      }, 500);
+    } catch (err) {
+      console.error('Apply to blog cover error:', err);
+      toast.error('Failed to apply banner to blog');
+    }
+  };
+
+  // Save design to localStorage
   const handleSave = () => {
-    if (fabricRef.current) {
+    if (!fabricRef.current) return;
+    try {
       const json = JSON.stringify(fabricRef.current.toJSON());
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `design-${Date.now()}.json`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success('Design saved');
+      const thumbnail = fabricRef.current.toDataURL({ format: 'jpeg', quality: 0.6, multiplier: 0.3 });
+      const savedDesign = {
+        id: Date.now(),
+        name: selectedPreset || 'LinkedIn Banner',
+        canvasSize,
+        thumbnail,
+        json,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const existing = JSON.parse(localStorage.getItem('userSavedDesigns') || '[]');
+      existing.unshift(savedDesign);
+      localStorage.setItem('userSavedDesigns', JSON.stringify(existing.slice(0, 20)));
+      toast.success('Design saved successfully!');
+    } catch (e) {
+      console.error('Save error:', e);
+      toast.error('Failed to save design');
     }
   };
 
@@ -746,6 +815,14 @@ const DesignStudio = () => {
   const handleApplyTemplate = (template) => {
     if (!fabricRef.current) return;
     
+    // Auto-adjust canvas size to match template preset
+    if (template.width && template.height) {
+      setCanvasSize({ width: template.width, height: template.height });
+      if (template.presetName) setSelectedPreset(template.presetName);
+      fabricRef.current.setWidth(template.width);
+      fabricRef.current.setHeight(template.height);
+    }
+
     fabricRef.current.clear();
     fabricRef.current.backgroundColor = template.backgroundColor || '#ffffff';
     
@@ -1067,40 +1144,54 @@ const DesignStudio = () => {
 
         {/* Right section - Actions */}
         <div className="flex items-center gap-2">
+          {/* Direct LinkedIn Cover integration */}
+          <button
+            onClick={handleSetAsBlogCover}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] hover:bg-[#004182] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#0A66C2]/20 transition whitespace-nowrap cursor-pointer"
+            title="Use this banner as your Blog Cover and post directly to LinkedIn"
+          >
+            <Linkedin className="w-4 h-4" />
+            <span className="hidden sm:inline">Use on LinkedIn / Blog</span>
+            <span className="sm:hidden">LinkedIn</span>
+          </button>
+
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 text-xs sm:text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 transition"
           >
             <Save className="w-4 h-4" />
-            Save
+            <span className="hidden sm:inline">Save</span>
           </button>
           
           <div className="relative group">
             <button
               onClick={() => handleExport('png')}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary-600 text-white text-sm hover:bg-primary-700"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white text-xs sm:text-sm font-semibold shadow-md shadow-primary-500/20 transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              Download
+              <span>Download</span>
             </button>
-            <div className="absolute top-full right-0 mt-1 hidden group-hover:block bg-white dark:bg-surface-800 rounded-lg shadow-xl border border-surface-200 dark:border-surface-700 overflow-hidden min-w-[120px]">
+            <div className="absolute top-full right-0 mt-1 hidden group-hover:block bg-white dark:bg-surface-800 rounded-xl shadow-xl border border-surface-200 dark:border-surface-700 overflow-hidden min-w-[145px] z-50 p-1">
               <button
                 onClick={() => handleExport('png')}
-                className="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+                className="w-full px-3 py-2 text-left text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg flex items-center justify-between"
               >
-                PNG
+                <span>PNG Image</span>
+                <span className="text-[10px] text-surface-400">High Res</span>
               </button>
               <button
                 onClick={() => handleExport('jpeg')}
-                className="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+                className="w-full px-3 py-2 text-left text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg flex items-center justify-between"
               >
-                JPEG
+                <span>JPEG Image</span>
+                <span className="text-[10px] text-surface-400">Web</span>
               </button>
               <button
                 onClick={() => handleExport('svg')}
-                className="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700"
+                className="w-full px-3 py-2 text-left text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg flex items-center justify-between"
               >
-                SVG
+                <span>SVG Vector</span>
+                <span className="text-[10px] text-surface-400">Scalable</span>
               </button>
             </div>
           </div>

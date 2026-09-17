@@ -30,7 +30,8 @@ import {
   Upload,
   RefreshCw,
   X as XIcon,
-  Link2
+  Link2,
+  Palette
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -88,6 +89,17 @@ const BlogEditor = () => {
   useEffect(() => {
     contentRef.current = content;
   }, [content]);
+
+  // Check for banner transferred directly from Design Studio
+  useEffect(() => {
+    const pendingCover = localStorage.getItem('pendingBlogCover');
+    if (pendingCover) {
+      setCoverImage(pendingCover);
+      setLinkedinToggle(true);
+      localStorage.removeItem('pendingBlogCover');
+      toast.success('✨ LinkedIn Banner applied as Blog Cover image!', { duration: 4000 });
+    }
+  }, []);
 
   // Handle toggling Speech Recognition
   const toggleListening = (target) => {
@@ -872,6 +884,15 @@ const BlogEditor = () => {
                         <Upload className="w-3.5 h-3.5" />
                         <span>Change</span>
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/design?preset=linkedin')}
+                        className="btn-sm btn-outline bg-white/90 dark:bg-surface-900/90 text-xs flex items-center gap-1.5 text-[#0A66C2] border-[#0A66C2]/40 hover:bg-[#0A66C2]/10"
+                        title="Customize banner in Design Studio"
+                      >
+                        <Palette className="w-3.5 h-3.5 text-[#0A66C2]" />
+                        <span>Edit in Studio</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -886,26 +907,36 @@ const BlogEditor = () => {
                         Post Content & Image Together
                       </h4>
                       <p className="text-xs text-surface-500 mt-0.5">
-                        Generate a banner with AI or upload your own photo.
+                        Generate a banner with AI, pick a Canva template, or upload your photo.
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                       <button
                         type="button"
+                        onClick={() => navigate('/design?preset=linkedin')}
+                        className="btn-primary btn-sm gap-1.5 bg-gradient-to-r from-[#0A66C2] to-primary-600 hover:from-[#084e96] hover:to-primary-700 text-white shadow-md shadow-[#0A66C2]/20 text-xs cursor-pointer"
+                        title="Create a custom LinkedIn Banner in Design Studio"
+                      >
+                        <Palette className="w-3.5 h-3.5" />
+                        <span>🎨 Canva-Style Banner</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={handleGenerateCoverImage}
                         disabled={imageGenerating}
-                        className="btn-primary btn-sm gap-1.5 shadow-md shadow-primary-500/20 text-xs cursor-pointer"
+                        className="btn-outline btn-sm gap-1.5 text-xs cursor-pointer"
                       >
                         {imageGenerating ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Generating Image...</span>
+                            <span>Generating...</span>
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <span>✨ AI Generate Cover</span>
+                            <Sparkles className="w-3.5 h-3.5 text-primary-500" />
+                            <span>AI Generate</span>
                           </>
                         )}
                       </button>
@@ -916,7 +947,7 @@ const BlogEditor = () => {
                         className="btn-outline btn-sm gap-1.5 text-xs cursor-pointer"
                       >
                         <Upload className="w-3.5 h-3.5" />
-                        <span>Upload Photo</span>
+                        <span>Upload</span>
                       </button>
 
                       <button
@@ -925,7 +956,7 @@ const BlogEditor = () => {
                         className="btn-ghost btn-sm gap-1.5 text-xs text-surface-600 dark:text-surface-400 cursor-pointer"
                       >
                         <Link2 className="w-3.5 h-3.5" />
-                        <span>Paste URL</span>
+                        <span>URL</span>
                       </button>
                     </div>
 
