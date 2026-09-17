@@ -1110,8 +1110,10 @@ Spoken Shortcuts:
       {/* AI Assistant Panel */}
       <div className={`
         ${showAIPanel ? 'block' : 'hidden'} 
-        fixed 2xl:relative right-0 top-0 h-full z-40
-        bg-white dark:bg-surface-900 shrink-0 border-l border-surface-200 dark:border-surface-800 shadow-2xl 2xl:shadow-none
+        fixed lg:relative right-0 top-0 h-full z-40
+        w-72 lg:w-80 shrink-0
+        bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 shadow-2xl lg:shadow-none
+        transition-all duration-200
       `}>
         <AIPanel
           suggestions={suggestions}
@@ -1126,10 +1128,10 @@ Spoken Shortcuts:
         />
       </div>
 
-      {/* Screen Overlay when AI panel is open on screens < 2xl */}
+      {/* Screen Overlay when AI panel is open on screens < lg */}
       {showAIPanel && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] z-30 2xl:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] z-30 lg:hidden"
           onClick={() => setShowAIPanel(false)}
         />
       )}
