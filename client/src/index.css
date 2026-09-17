@@ -116,14 +116,15 @@
   }
 
   /* Input styles */
-  .input {
-    @apply w-full px-4 py-3 rounded-xl;
+  .input, .input-field {
+    @apply w-full block px-4 py-2.5 rounded-xl;
     @apply bg-surface-50/80 dark:bg-surface-800/80;
     @apply border border-surface-200 dark:border-surface-700/60;
     @apply text-surface-900 dark:text-surface-100;
     @apply placeholder:text-surface-400 dark:placeholder:text-surface-500;
     @apply focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500;
-    @apply transition-all duration-200;
+    @apply transition-all duration-200 text-sm;
+    box-sizing: border-box !important;
   }
 
   .input-error {
