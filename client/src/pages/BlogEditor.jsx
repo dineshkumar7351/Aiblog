@@ -600,25 +600,25 @@ const BlogEditor = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-73px)]">
+    <div className="flex h-full w-full max-w-full min-w-0 overflow-hidden relative">
       {/* Editor Panel */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden">
         {/* Editor Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 sm:py-3 border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 gap-3">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 gap-2 min-w-0 w-full shrink-0">
           {/* Left: Back + Title & Status */}
-          <div className="flex items-center gap-3 shrink-0 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-lg text-surface-500 hover:text-surface-800 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition shrink-0"
+              className="p-1.5 sm:p-2 rounded-lg text-surface-500 hover:text-surface-800 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition shrink-0"
               title="Back"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-100 truncate leading-tight">
+            <div className="min-w-0 truncate">
+              <h1 className="text-sm sm:text-base font-bold text-surface-900 dark:text-surface-100 truncate leading-tight">
                 {isEditing ? 'Edit Blog' : 'Write New Blog'}
               </h1>
-              <div className="flex items-center gap-2 text-xs text-surface-500 whitespace-nowrap">
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-surface-500 whitespace-nowrap">
                 <span className={`inline-flex items-center gap-1 font-medium ${status === 'published' ? 'text-emerald-600' : 'text-surface-500'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${status === 'published' ? 'bg-emerald-500' : 'bg-surface-400'}`} />
                   {status === 'published' ? 'Published' : 'Draft'}
@@ -634,63 +634,14 @@ const BlogEditor = () => {
           </div>
 
           {/* Right: Actions Toolbar */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
-            {/* Desktop AI Tools Group */}
-            <div className="hidden xl:flex items-center gap-1.5 pr-2.5 border-r border-surface-200 dark:border-surface-700">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            {/* Studios (Image & Voice) */}
+            <div className="flex items-center gap-1 sm:gap-1.5 pr-1 sm:pr-1.5 border-r border-surface-200 dark:border-surface-700">
               <button
                 type="button"
                 onClick={() => setShowImageStudio(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-pink-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-pink-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
                 title="Upload an image/screenshot and let AI write a full blog post"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                <span>📸 Image to Blog</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowVoiceStudio(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
-                title="Speak your thoughts to generate complete article"
-              >
-                <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
-                <span>Voice Studio</span>
-              </button>
-              <button
-                onClick={handleSuggestTitle}
-                disabled={aiLoading}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
-                title="Get AI title suggestions"
-              >
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                <span>Title Ideas</span>
-              </button>
-              <button
-                onClick={handleImproveContent}
-                disabled={aiLoading}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
-                title="Improve content with AI"
-              >
-                <Wand2 className="w-3.5 h-3.5 text-secondary-500" />
-                <span>Improve</span>
-              </button>
-              <button
-                onClick={handleSEOCheck}
-                disabled={aiLoading}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
-                title="Check SEO score"
-              >
-                <Search className="w-3.5 h-3.5 text-primary-500" />
-                <span>SEO Check</span>
-              </button>
-            </div>
-
-            {/* Quick AI buttons for medium screens */}
-            <div className="flex xl:hidden items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setShowImageStudio(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500/15 to-purple-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
-                title="Image to Blog"
               >
                 <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
                 <span className="hidden sm:inline">Image AI</span>
@@ -698,20 +649,51 @@ const BlogEditor = () => {
               <button
                 type="button"
                 onClick={() => setShowVoiceStudio(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
-                title="Voice Studio"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-primary-500/15 via-secondary-500/15 to-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/30 hover:bg-primary-500/25 transition shadow-sm whitespace-nowrap cursor-pointer h-8"
+                title="Speak your thoughts to generate complete article"
               >
                 <Mic className="w-3.5 h-3.5 text-primary-500 animate-pulse" />
                 <span className="hidden sm:inline">Voice</span>
               </button>
             </div>
 
-            {/* LinkedIn Toggle Pill */}
+            {/* AI Assistant Quick Actions */}
+            <div className="flex items-center gap-1 pr-1 sm:pr-1.5 border-r border-surface-200 dark:border-surface-700">
+              <button
+                onClick={handleSuggestTitle}
+                disabled={aiLoading}
+                className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
+                title="Get AI title suggestions"
+              >
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden 2xl:inline">Titles</span>
+              </button>
+              <button
+                onClick={handleImproveContent}
+                disabled={aiLoading}
+                className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
+                title="Improve content with AI"
+              >
+                <Wand2 className="w-3.5 h-3.5 text-secondary-500" />
+                <span className="hidden 2xl:inline">Improve</span>
+              </button>
+              <button
+                onClick={handleSEOCheck}
+                disabled={aiLoading}
+                className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-1.5 rounded-lg text-xs font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap h-8 cursor-pointer disabled:opacity-50"
+                title="Check SEO score"
+              >
+                <Search className="w-3.5 h-3.5 text-primary-500" />
+                <span className="hidden 2xl:inline">SEO</span>
+              </button>
+            </div>
+
+            {/* LinkedIn Toggle */}
             <button
               onClick={handleLinkedinToggle}
               disabled={checkingLinkedin}
               className={`
-                inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap
+                inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap
                 transition-all duration-200 cursor-pointer h-8 shrink-0
                 ${linkedinToggle 
                   ? linkedinConnected
@@ -720,66 +702,47 @@ const BlogEditor = () => {
                   : 'bg-surface-100 text-surface-500 border border-surface-200 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-400 dark:border-surface-700'
                 }
               `}
-              title={
-                checkingLinkedin ? 'Checking LinkedIn status...' :
-                linkedinToggle 
-                  ? linkedinConnected 
-                    ? 'LinkedIn connected — will post on publish' 
-                    : 'LinkedIn not connected — will prompt login on publish'
-                  : 'Click to enable LinkedIn sharing'
-              }
+              title={linkedinToggle ? (linkedinConnected ? 'LinkedIn Connected' : 'LinkedIn Not Connected') : 'Turn LinkedIn sharing ON'}
             >
               {checkingLinkedin ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Linkedin className="w-3.5 h-3.5" />
               )}
-              <span>
-                {checkingLinkedin ? 'Checking...' :
-                 linkedinToggle 
-                  ? linkedinConnected ? 'LinkedIn ✓' : 'LinkedIn'
-                  : 'LinkedIn Off'}
+              <span className="hidden md:inline">
+                {checkingLinkedin ? 'Checking' : linkedinToggle ? (linkedinConnected ? 'LinkedIn ✓' : 'LinkedIn') : 'LinkedIn Off'}
               </span>
-              {!checkingLinkedin && linkedinToggle && (
-                linkedinConnected 
-                  ? <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  : <AlertCircle className="w-3 h-3 text-amber-600" />
-              )}
             </button>
-
-            {/* Divider */}
-            <div className="w-px h-5 bg-surface-200 dark:bg-surface-700 hidden sm:block shrink-0 mx-0.5" />
 
             {/* Save Draft */}
             <button
               onClick={() => handleSave('draft')}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
+              title="Save Draft"
             >
               <Save className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Save Draft</span>
+              <span className="hidden sm:inline">Draft</span>
             </button>
 
             {/* Publish */}
             <button
               onClick={() => handleSave('published')}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-md shadow-primary-500/20 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-md shadow-primary-500/20 transition whitespace-nowrap shrink-0 h-8 cursor-pointer disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Send className="w-3.5 h-3.5" />
               )}
-              <span>
-                {saving ? 'Publishing...' : linkedinToggle ? 'Publish + LinkedIn' : 'Publish'}
-              </span>
+              <span>Publish</span>
             </button>
 
-            {/* Toggle AI Panel */}
+            {/* Toggle AI Panel Button */}
             <button
               onClick={() => setShowAIPanel(!showAIPanel)}
-              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap shrink-0 h-8 cursor-pointer ${
+              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap shrink-0 h-8 cursor-pointer ${
                 showAIPanel
                   ? 'bg-primary-50 text-primary-700 dark:bg-primary-950/40 dark:text-primary-300 border border-primary-200 dark:border-primary-800 shadow-sm'
                   : 'bg-surface-100 text-surface-700 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 border border-surface-200 dark:border-surface-700'
@@ -791,7 +754,7 @@ const BlogEditor = () => {
               ) : (
                 <PanelRightOpen className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">{showAIPanel ? 'Hide Copilot' : 'AI Copilot'}</span>
+              <span className="hidden lg:inline">{showAIPanel ? 'Hide AI' : 'AI Copilot'}</span>
             </button>
           </div>
         </div>
@@ -1147,8 +1110,8 @@ Spoken Shortcuts:
       {/* AI Assistant Panel */}
       <div className={`
         ${showAIPanel ? 'block' : 'hidden'} 
-        fixed lg:relative right-0 top-0 h-full z-40
-        bg-white dark:bg-surface-900 shrink-0 border-l border-surface-200 dark:border-surface-800
+        fixed 2xl:relative right-0 top-0 h-full z-40
+        bg-white dark:bg-surface-900 shrink-0 border-l border-surface-200 dark:border-surface-800 shadow-2xl 2xl:shadow-none
       `}>
         <AIPanel
           suggestions={suggestions}
@@ -1163,10 +1126,10 @@ Spoken Shortcuts:
         />
       </div>
 
-      {/* Mobile AI Panel Overlay */}
+      {/* Screen Overlay when AI panel is open on screens < 2xl */}
       {showAIPanel && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-[1px] z-30 2xl:hidden"
           onClick={() => setShowAIPanel(false)}
         />
       )}

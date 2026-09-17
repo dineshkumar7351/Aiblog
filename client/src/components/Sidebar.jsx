@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-full w-64
+        fixed top-0 left-0 z-50 h-full w-64 shrink-0
         bg-white/70 dark:bg-surface-900/60 backdrop-blur-xl
         border-r border-surface-200/40 dark:border-surface-800/30
         transform transition-transform duration-300 ease-out

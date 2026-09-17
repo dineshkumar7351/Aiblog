@@ -29,8 +29,8 @@ const Navbar = ({ onMenuClick }) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/85 dark:bg-surface-900/75 backdrop-blur-xl border-b border-surface-200/40 dark:border-surface-800/30">
-      <div className="flex items-center justify-between px-4 lg:px-6 py-4">
+    <header className="sticky top-0 z-30 bg-white/85 dark:bg-surface-900/75 backdrop-blur-xl border-b border-surface-200/40 dark:border-surface-800/30 w-full max-w-full shrink-0">
+      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 max-w-full">
         {/* Left side - Menu button for mobile */}
         <button 
           onClick={onMenuClick}

@@ -45,7 +45,7 @@ const AIPanel = ({
   };
 
   return (
-    <aside className="w-80 bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 h-full overflow-y-auto flex flex-col">
+    <aside className="w-80 max-w-[90vw] bg-white dark:bg-surface-900 border-l border-surface-200 dark:border-surface-800 h-full overflow-y-auto flex flex-col shrink-0">
       {/* Header */}
       <div className="sticky top-0 bg-white dark:bg-surface-900 p-3.5 border-b border-surface-200 dark:border-surface-800 z-10 shrink-0">
         <div className="flex items-center justify-between">
